@@ -1,0 +1,82 @@
+/* ------------------ Reset and Base Styles ------------------ */
+/* Ensure a consistent base look: remove default margins/padding, set background, text color, and font */
+body {
+  background-color: #121212;           /* Dark background for low-light theme */
+  color: #e0e0e0;                      /* Light gray text for good contrast */
+  font-family: 
+    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Sans-serif stack for readability */
+  margin: 0;                           /* Remove default page margin */
+  padding: 0;                          /* Remove default page padding */
+}
+
+/* ------------------ Header / Navigation ------------------ */
+/* Create a sticky top bar with logo on the left and nav links on the right */
+.header {
+  background-color: #1c1c1c;           /* Slightly lighter dark background than body */
+  padding: 1rem 2rem;                  /* Space inside header (vertical 1rem, horizontal 2rem) */
+  display: flex;                       /* Flex layout for logo + nav */
+  justify-content: space-between;     /* Push items to edges */
+  align-items: center;                /* Vertically center contents */
+  border-bottom: 2px solid #00ffae;    /* Accent border to separate header */
+  position: sticky;                    /* Keep header pinned when scrolling */
+  top: 0;                              /* Stick to the top of the viewport */
+  z-index: 1000;                       /* Ensure it stays above other elements */
+}
+
+/* Logo styling: makes the brand mark stand out */
+.header__logo {
+  font-size: 1.8rem;                   /* Larger text for emphasis */
+  color: #00ffae;                      /* Bright accent color */
+  font-weight: bold;                   /* Strong weight for visibility */
+}
+
+/* Navigation list: horizontal row of items without bullets */
+.navbar__list {
+  list-style: none;                    /* Remove default list bullets */
+  display: flex;                       /* Lay out list items in a row */
+  gap: 1.5rem;                         /* Space between links */
+  margin: 0;                           /* Remove default list margins */
+  padding: 0;                          /* Remove default list padding */
+}
+
+/* Base link styling */
+.navbar__link {
+  color: #e0e0e0;                      /* Match body text color */
+  text-decoration: none;               /* No underline by default */
+  font-weight: 500;                    /* Medium weight for readability */
+  transition: all 0.3s ease;           /* Smooth hover transition */
+}
+
+/* Hover state: highlight and underline on hover */
+.navbar__link:hover {
+  color: #00ffae;                      /* Change text to accent color */
+  border-bottom: 2px solid #00ffae;   /* Underline effect */
+  padding-bottom: 3px;                 /* Prevent text jump when border appears */
+}
+
+/* ------------------ Footer ------------------ */
+/* Simple centered footer with top border and links */
+.footer {
+  background-color: #1c1c1c;           /* Match header background */
+  color: #aaa;                         /* Subtle gray text */
+  padding: 2rem 1rem;                  /* Vertical padding 2rem, horizontal 1rem */
+  text-align: center;                  /* Center-align all footer content */
+  border-top: 2px solid #00ffae;       /* Accent border at top of footer */
+  margin-top: 3rem;                    /* Space above footer */
+}
+
+/* Footer paragraph/text spacing */
+.footer__text {
+  margin: 0.4rem 0;                    /* Small vertical gaps between lines */
+}
+
+/* Footer link styling */
+.footer__link {
+  color: #00ffae;                      /* Accent color for links */
+  text-decoration: none;               /* No underline by default */
+}
+
+/* Footer link hover: simple underline for affordance */
+.footer__link:hover {
+  text-decoration: underline;          /* Underline on hover for clarity */
+}
