@@ -1,113 +1,72 @@
-# 🚗 Car Online Sale System (COSS)
+# 🚗 Car Online Sale System (COSS) — Premium Edition
 
-A full-stack web-based Car Dealership Management System developed using PHP, HTML, CSS, JavaScript, and MySQL.
-
-This project simulates a real-world car dealership platform where users can browse, search, register, log in, and submit feedback, while sellers can upload vehicle listings.
+A highly modernized, full-stack automotive marketplace designed to simulate a real-world, high-end car dealership experience. Built with robust PHP, highly-structured CSS, JavaScript, and a relational MySQL architecture.
 
 ---
 
 ## 📌 Project Overview
-
-The Car Online Sale System (COSS) is designed to provide an online platform for buying and selling cars. It includes authentication systems, search functionality, seller upload capability, and structured reusable components like navbar and footer.
-
-This project was developed as part of my Web Development coursework to demonstrate full-stack development skills.
+COSS is a robust, dynamic platform where Buyers and Sellers can interact seamlessly. Recently completely overhauled to incorporate a premium visual design language, the system now features structured Live Messaging, comprehensive User Profiles, and an advanced cryptographic File Upload Engine capable of natively parsing modern mobile image formats.
 
 ---
 
-## 🛠️ Technologies Used
+## ✨ Premium Upgrades & Core Features
 
-- PHP (Backend logic)
-- HTML5
-- CSS3
-- JavaScript
-- MySQL Database
-- XAMPP / Localhost
+### 🎨 The "Digital Curator" Design System
+- **Editorial Aesthetics:** Utilizes a highly structured, minimalist layout inspired by premium physical automotive showrooms.
+- **Interactive UI Components:** Smooth backdrop filters, glassmorphism `navbar.php` techniques, crisp hover states, and advanced CSS grid/flex structuring.
+- **Cinematic Car Details:** Rebuilt product listing interfaces (`car-details.php`) highlighting edge-to-edge photography, verified seller badges, and dynamic quick-spec matrices.
 
----
+### 🧑‍💼 User Profiles & Public Trust ⭐️
+- **Custom Uploadable Avatars:** Real-time uploadable profile pictures linking user identity across the entire marketplace.
+- **Aggregated 5-Star Reputation Engine:** Feedback and review ratings are captured numerically and automatically averaged, displaying verified seller trust scores and review timelines directly on their public profile.
+- **Dual-Mode Profile Dashboard:** An integrated `profile.php` gateway that intelligently switches between an active "Editor Mode" (for managing personal contact & bio details) and a "Public Showcase Portfolio" (when viewed by visiting buyers).
 
-## 📂 Project Structure
+### 💬 Threaded Live Messaging Center
+- Built a secure internal messaging engine (`messages.php`) bypassing outdated direct email workflows.
+- Cleanly organizes incoming/outgoing messages into grouped threads associated with specific users and specific vehicles.
+- Intelligently populates Dynamic Avatars, allowing buyers and sellers to click directly on faces in-chat to view each other's credentials.
 
-index.php → Homepage  
-cars.php → Display all car listings  
-car-details.php → Individual car details page  
-search.php → Search functionality  
-registration.php → User registration  
-login.php → User login  
-logout.php → Logout system  
-seller_login.php → Seller authentication  
-upload_handler.php → Car upload processing  
-feedback.php → Feedback form  
-submit_feedback.php → Feedback submission handler  
-navbar.php → Navigation bar component  
-footer.php → Footer component  
+### 📸 Next-Generation File Handling
+- **Apple HEIC & WebP Universal Support:** Advanced server logic using PHP `finfo` intelligently detects, hashes, and processes iPhone HEIC format files natively without forcing users to digitally pre-convert images on external tools.
+- **Interactive Drop-Zone UX:** Custom JS Drag-and-Drop mechanics seamlessly replacing rigid legacy OS file inputs across the seller listing views and profile portals.
 
 ---
 
-## ✨ Key Features
+## 📂 Revamped Cloud Architecture
 
-### 👤 User Features
-- User Registration
-- Login & Logout System (Session-based)
-- Browse Available Cars
-- View Detailed Car Information
-- Search Cars by Criteria
-- Submit Feedback
-
-### 🧑‍💼 Seller Features
-- Seller Login
-- Upload Car Listings
-- Form Handling & Data Processing
+```text
+api/            → Secure processing endpoints (logout, profile_upload, send_message, upload_handler)
+assets/         → Centralized vault for modular CSS, JS, and categorized image storage (cars/ & profiles/)
+config/         → Core DB connectivity and dynamic programmatic schema builders (create_tables.php)
+includes/       → Reusable modular components (navbar, footer, html headers)
+*.php           → Core Frontend Views (index, search, cars, car-details, messages, profile, feedback)
+```
 
 ---
 
-## 🔐 Authentication & Security
+## 🚀 How to Run the Project Locally
 
-- PHP session management
-- Separate user and seller login systems
-- Secure form processing
-- Structured backend logic
+1. Install a local PHP/MySQL environment (e.g., XAMPP, MAMP).
+2. Clone this repository tightly into your native `htdocs` server directory (ideally named `/coss`).
+3. Boot up Apache and MySQL processes.
+4. **Auto-Setup:** No manual SQL dumps required! Just run `http://localhost/coss/config/create_tables.php` once in your browser to immediately synthesize the relational table architecture and schemas.
+5. **Launch:** Navigate to `http://localhost/coss/index.php`.
 
----
-
-## 🔎 Search Functionality
-
-Users can search cars dynamically based on filters, improving usability and real-world simulation of a dealership system.
+*(Note: File upload limits in XAMPP may need to be slightly expanded to process raw 10MB+ Apple HEIC photos cleanly, please refer to the included `.htaccess` configuration).*
 
 ---
 
-## 🚀 How to Run the Project
+## 🔐 Built-in Security
 
-1. Install XAMPP (or any PHP local server)
-2. Place the project folder inside the `htdocs` directory
-3. Start Apache and MySQL
-4. Import the database (if required)
-5. Open your browser and navigate to:
-
-   http://localhost/Car-Online-Sale-System
-
----
-
-## 💡 Future Improvements
-
-- Admin Dashboard
-- Role-Based Access Control
-- Payment Gateway Integration
-- Email Verification
-- Image Upload Improvements
-- Deployment to live server (AWS / cPanel / Render)
+- Cryptographic SHA-1 File System rewriting to avoid malicious code execution.
+- Global 32-Byte Session CSRF Token protection injected onto all POST forms.
+- Complete Prepared Statement mapping blocking SQL-Injection.
 
 ---
 
 ## 🎯 Author
-
-Bhupinder Singh  
+**Bhupinder Singh**  
 Bachelor of Information Technology  
-Full-Stack Web Development Enthusiast  
+*Full-Stack Web Development Enthusiast*  
 
----
-
-## 📬 Connect With Me
-
-Open to internship and collaboration opportunities.
-
-If you like this project, feel free to fork or star the repository ⭐
+Open to internship and collaboration opportunities! If you like the architecture of this project, feel free to fork or star the repository ⭐
