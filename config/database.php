@@ -2,7 +2,7 @@
 // db_connect.php
 
 // 1) Database credentials
-$host   = 'localhost';    // your MySQL host
+$host   = '127.0.0.1';    // your MySQL host
 $user   = 'root';         // your MySQL user
 $pass   = '';             // your MySQL password
 $dbname = 'coss';         // your database name

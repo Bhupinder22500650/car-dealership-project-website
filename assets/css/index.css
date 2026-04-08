@@ -1,82 +1,290 @@
 /* ------------------ Reset and Base Styles ------------------ */
 /* Ensure a consistent base look: remove default margins/padding, set background, text color, and font */
 body {
-  background-color: #121212;           /* Dark background for low-light theme */
-  color: #e0e0e0;                      /* Light gray text for good contrast */
-  font-family: 
-    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Sans-serif stack for readability */
-  margin: 0;                           /* Remove default page margin */
-  padding: 0;                          /* Remove default page padding */
+  background-color: #000000;
+  /* Pure black background */
+  color: #ffffff;
+  /* Crisp white text for ultimate contrast */
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* Cleaner, sharper sans-serif */
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ------------------ Header / Navigation ------------------ */
-/* Create a sticky top bar with logo on the left and nav links on the right */
 .header {
-  background-color: #1c1c1c;           /* Slightly lighter dark background than body */
-  padding: 1rem 2rem;                  /* Space inside header (vertical 1rem, horizontal 2rem) */
-  display: flex;                       /* Flex layout for logo + nav */
-  justify-content: space-between;     /* Push items to edges */
-  align-items: center;                /* Vertically center contents */
-  border-bottom: 2px solid #00ffae;    /* Accent border to separate header */
-  position: sticky;                    /* Keep header pinned when scrolling */
-  top: 0;                              /* Stick to the top of the viewport */
-  z-index: 1000;                       /* Ensure it stays above other elements */
+  background-color: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 1rem 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+  /* Very subtle separator, no glowing teal */
+  position: sticky;
+  top: 0;
+  z-index: 1001;
 }
 
-/* Logo styling: makes the brand mark stand out */
 .header__logo {
-  font-size: 1.8rem;                   /* Larger text for emphasis */
-  color: #00ffae;                      /* Bright accent color */
-  font-weight: bold;                   /* Strong weight for visibility */
+  font-size: 1.6rem;
+  font-weight: 800;
+  /* Extra bold for automotive brand feel */
+  color: #ffffff;
+  /* Pure white logo */
+  letter-spacing: 2px;
+  /* Wide tracking */
+  text-transform: uppercase;
+  /* Always uppercase */
+  z-index: 1002;
+  margin-right: 1rem;
 }
 
-/* Navigation list: horizontal row of items without bullets */
+.header__navbar {
+  display: flex;
+  align-items: center;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1002;
+  margin-left: 1rem;
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  width: 28px;
+  height: 2px;
+  /* Thinner, sharper hamburger menu */
+  background-color: #ffffff;
+  margin: 5px 0;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 .navbar__list {
-  list-style: none;                    /* Remove default list bullets */
-  display: flex;                       /* Lay out list items in a row */
-  gap: 1.5rem;                         /* Space between links */
-  margin: 0;                           /* Remove default list margins */
-  padding: 0;                          /* Remove default list padding */
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  /* More spacing for a premium feel */
+  margin: 0;
+  padding: 0;
 }
 
-/* Base link styling */
+.navbar__item {
+  margin: 0;
+}
+
 .navbar__link {
-  color: #e0e0e0;                      /* Match body text color */
-  text-decoration: none;               /* No underline by default */
-  font-weight: 500;                    /* Medium weight for readability */
-  transition: all 0.3s ease;           /* Smooth hover transition */
+  color: #999999;
+  text-decoration: none;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.9rem;
+  /* Slightly larger font */
+  font-weight: 700;
+  /* Bolder for impact */
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  /* Tighter, more refined spacing */
+  transition: color 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Smoother transition */
 }
 
-/* Hover state: highlight and underline on hover */
 .navbar__link:hover {
-  color: #00ffae;                      /* Change text to accent color */
-  border-bottom: 2px solid #00ffae;   /* Underline effect */
-  padding-bottom: 3px;                 /* Prevent text jump when border appears */
+  color: #e11a22;
+  /* Acura Performance Red on hover */
+}
+
+.navbar__link.active {
+  color: #e11a22;
+  /* Acura Performance Red indicator */
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .header__navbar {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
+    /* Solid black overlay */
+    padding: 0;
+    transition: right 0.3s cubic-bezier(.77, 0, .18, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .header__navbar.active {
+    right: 0;
+  }
+
+  .navbar__list {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    /* No gap, links will have their own padding/border */
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+
+  .navbar__item {
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+  }
+
+  .navbar__link {
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    width: 100%;
+    text-align: center;
+    display: block;
+    border-bottom: 1px solid #222;
+  }
+
+  .mobile-menu-toggle.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-toggle.active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
 }
 
 /* ------------------ Footer ------------------ */
 /* Simple centered footer with top border and links */
 .footer {
-  background-color: #1c1c1c;           /* Match header background */
-  color: #aaa;                         /* Subtle gray text */
-  padding: 2rem 1rem;                  /* Vertical padding 2rem, horizontal 1rem */
-  text-align: center;                  /* Center-align all footer content */
-  border-top: 2px solid #00ffae;       /* Accent border at top of footer */
-  margin-top: 3rem;                    /* Space above footer */
+  background-color: #0a0a0a;
+  color: #666666;
+  padding: 3rem 1rem;
+  text-align: center;
+  border-top: 1px solid #222222;
+  margin-top: 4rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Footer paragraph/text spacing */
 .footer__text {
-  margin: 0.4rem 0;                    /* Small vertical gaps between lines */
+  margin: 0.5rem 0;
 }
 
 /* Footer link styling */
 .footer__link {
-  color: #00ffae;                      /* Accent color for links */
-  text-decoration: none;               /* No underline by default */
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s linear;
 }
 
 /* Footer link hover: simple underline for affordance */
 .footer__link:hover {
-  text-decoration: underline;          /* Underline on hover for clarity */
+  border-color: #e11a22;
+  /* Red underline on hover */
+}
+
+/* ------------------ Global 3D Reveal Animations ------------------ */
+/* 
+ * Apply this class to any element you want to gracefully float and 
+ * tilt into view as the user scrolls down the page. 
+ */
+.reveal-3d {
+  opacity: 0;
+  /* Deep cinematic start state with high back-push and aggressive tilt */
+  transform: perspective(1500px) translateY(80px) translateZ(-150px) rotateX(-15deg) rotateY(10deg);
+  /* Buttery smooth ease-out-expo to drift into resting state */
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* When the JS Observer detects the element, it adds the .active class */
+.reveal-3d.active {
+  opacity: 1;
+  /* Bring the element to its natural resting place */
+  transform: perspective(1000px) translateY(0) translateZ(0) rotateX(0);
+}
+
+/* Add slight stagger delays based on DOM order if multiple items appear together */
+.reveal-3d:nth-child(2) {
+  transition-delay: 0.1s;
+}
+
+.reveal-3d:nth-child(3) {
+  transition-delay: 0.2s;
+}
+
+.reveal-3d:nth-child(4) {
+  transition-delay: 0.3s;
+}
+
+.reveal-3d:nth-child(5) {
+  transition-delay: 0.4s;
+}
+
+.reveal-3d:nth-child(6) {
+  transition-delay: 0.5s;
+}
+
+/* ------------------ 3D Interactivity Core ------------------ */
+.tilt-element {
+  transform-style: preserve-3d;
+  perspective: 1500px;
+  will-change: transform;
+}
+
+/* Premium Glassmorphism utility */
+.glass-panel {
+  background: rgba(20, 20, 20, 0.6) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel:hover {
+  background: rgba(30, 30, 30, 0.7) !important;
+  border-color: rgba(225, 26, 34, 0.3) !important; /* Subtle Acura red line */
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(225, 26, 34, 0.1) !important;
+}
+
+/* Base structural glow */
+.magnetic-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  will-change: transform;
+  /* Dynamic JS dictates tracking, but base smooth release */
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s linear, color 0.2s linear;
 }

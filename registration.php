@@ -1,21 +1,11 @@
 <?php
-// --------------------------------------------------------------------------
-// registration.php
-// --------------------------------------------------------------------------
-
-// 1) Do not expose PHP errors in production pages
 ini_set('display_errors', 0);
-
-// 2) Start session
 session_start();
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/config/create_tables.php';
 
-// 3) Include shared DB connection
-require_once __DIR__ . '/db/db_connect.php';
-require_once __DIR__ . '/db/create_tables.php';
-
-// 4) If already logged in, redirect away
-if (isset($_SESSION['seller_id'])) {
-    header('Location: cars.php');
+if (isset($_SESSION['user_id'])) {
+    header('Location: ' . ($_SESSION['user_type'] === 'admin' ? 'admin_dashboard.php' : 'cars.php'));
     exit;
 }
 
@@ -23,197 +13,210 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// 5) Prepare feedback storage
 $errors  = [];
 $success = '';
+$firstName = $lastName = $address = $phone = $email = $username = '';
 
-// 6) Handle POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
         $errors[] = 'Invalid request token. Please try again.';
     }
 
     if (empty($errors)) {
-    // — Collect & trim
-    $firstName = trim($_POST['firstName']  ?? '');
-    $lastName  = trim($_POST['lastName']   ?? '');
-    $address   = trim($_POST['address']    ?? '');
-    $phone     = trim($_POST['phone']      ?? '');
-    $email     = trim($_POST['email']      ?? '');
-    $username  = trim($_POST['username']   ?? '');
-    $password  = $_POST['password']        ?? '';
+        $firstName = trim($_POST['firstName']  ?? '');
+        $lastName  = trim($_POST['lastName']   ?? '');
+        $address   = trim($_POST['address']    ?? '');
+        $phone     = trim($_POST['phone']      ?? '');
+        $email     = trim($_POST['email']      ?? '');
+        $username  = trim($_POST['username']   ?? '');
+        $password  = $_POST['password']        ?? '';
+        $userType  = $_POST['userType']        ?? 'buyer';
 
-    // — Validate
-    if (strlen($username) < 6) {
-        $errors[] = 'Username must be at least 6 characters.';
-    }
-    if (strlen($password) < 6) {
-        $errors[] = 'Password must be at least 6 characters.';
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Invalid email address.';
-    }
-    if (!preg_match('/^[\d+\-\s]+$/', $phone)) {
-        $errors[] = 'Phone contains invalid characters.';
-    }
+        if (strlen($username) < 6) $errors[] = 'Username must be at least 6 characters.';
+        if (strlen($password) < 6) $errors[] = 'Password must be at least 6 characters.';
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email address.';
+        if (!preg_match('/^[\d+\-\s]+$/', $phone)) $errors[] = 'Phone contains invalid characters.';
 
-    // — Check duplicates
-    if (empty($errors)) {
-        $chk = $conn->prepare(
-            "SELECT seller_id
-               FROM seller
-              WHERE username = ? OR email = ?"
-        );
-        $chk->bind_param('ss', $username, $email);
-        $chk->execute();
-        $chk->store_result();
-        if ($chk->num_rows > 0) {
-            $errors[] = 'Username or email already taken.';
+        if (empty($errors)) {
+            $chk = $conn->prepare("SELECT user_id FROM users WHERE username = ? OR email = ?");
+            $chk->bind_param('ss', $username, $email);
+            $chk->execute();
+            $chk->store_result();
+            if ($chk->num_rows > 0) $errors[] = 'Username or email already taken.';
+            $chk->close();
         }
-        $chk->close();
-    }
 
-    // — Insert if OK
-    if (empty($errors)) {
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-        $stmt = $conn->prepare(
-            "INSERT INTO seller
-             (First_name, Last_name, Address, Phone, email, username, password)
-             VALUES (?, ?, ?, ?, ?, ?, ?)"
-        );
-        $stmt->bind_param(
-            "sssssss",
-            $firstName,
-            $lastName,
-            $address,
-            $phone,
-            $email,
-            $username,
-            $passwordHash
-        );
-
-        if ($stmt->execute()) {
-            $success = '✅ Registration successful! <a href="login.php">Log in here</a>.';
-            // clear fields
-            $firstName = $lastName = $address = $phone = $email = $username = '';
-        } else {
-            $errors[] = 'Database error: ' . $stmt->error;
+        if (empty($errors)) {
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("INSERT INTO users (First_name, Last_name, Address, Phone, email, username, password, user_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssssss", $firstName, $lastName, $address, $phone, $email, $username, $passwordHash, $userType);
+            if ($stmt->execute()) {
+                $success = 'Registration successful! <a href="login.php" class="underline">Log in here</a>.';
+                $firstName = $lastName = $address = $phone = $email = $username = '';
+            } else {
+                $errors[] = 'Database error: ' . $stmt->error;
+            }
+            $stmt->close();
         }
-        $stmt->close();
-    }
     }
 }
-
-// 7) Close DB
 $conn->close();
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-  <!-- ------------------------------------------------------------------------
-       Page Metadata & Resources
-       ------------------------------------------------------------------------ -->
-  <meta charset="UTF-8">
-  <title>Seller Registration – COSS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/css/index.css">
-  <script src="assets/js/script.js" defer></script>
-
-  <!-- ------------------------------------------------------------------------
-       Inline Styles for Registration Form
-       ------------------------------------------------------------------------ -->
-  <style>
-    /* Container styling */
-    .registration {
-      max-width: 500px;
-      margin: 3rem auto;
-      padding: 2rem;
-      background-color: #1e1e1e;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,255,174,0.2);
-    }
-    /* Title styling */
-    .registration__title {
-      text-align: center;
-      color: #00ffae;
-      margin-bottom: 1.5rem;
-    }
-    /* Input field styling */
-    .registration__form input {
-      width: 100%;
-      margin-bottom: 1rem;
-      padding: 12px;
-      font-size: 1rem;
-      background-color: #2c2c2c;
-      border: 1px solid #444;
-      color: #e0e0e0;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
-    }
-    /* Input focus effect */
-    .registration__form input:focus {
-      background-color: yellow;
-      color: #121212;
-    }
-    /* Button styling */
-    .registration__btn {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      background-color: #00ffae;
-      color: #121212;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-    .registration__btn:hover {
-      background-color: #00c68e;
-      transform: scale(1.02);
-    }
-    /* Feedback messages */
-    .feedback { margin-bottom: 1rem; }
-    .feedback.error { color: #f66; }
-    .feedback.success { color: #0f0; }
-  </style>
+    <meta charset="UTF-8">
+    <title>COSS | CREATE ACCOUNT</title>
+    <meta name="description" content="Create your COSS account to buy and sell premium vehicles on New Zealand's finest automotive marketplace.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php include 'includes/stitch_head.php'; ?>
+    <style>
+        input:focus, select:focus, textarea:focus { outline: none !important; box-shadow: none !important; }
+    </style>
 </head>
-<body>
-    <?php include 'navbar.php'; ?>
+<body class="bg-surface font-body text-on-surface antialiased">
 
-    <main class="registration">
-        <h2 class="registration__title">Seller Registration</h2>
+<!-- Minimal fixed header -->
+<header class="fixed top-0 left-0 w-full z-50 px-8 md:px-12 py-7 flex justify-between items-center bg-transparent">
+    <a href="index.php" class="text-2xl font-extralight tracking-widest text-white md:text-black uppercase hover:opacity-70 transition-opacity mix-blend-difference">COSS</a>
+    <a class="font-light tracking-[0.1em] uppercase text-xs text-white mix-blend-difference hover:text-[#adc6ff] transition-colors" href="login.php">LOGIN</a>
+</header>
 
-        <?php if ($errors): ?>
-            <div class="feedback error">
+<main class="flex min-h-screen w-full">
+    <!-- Left Side: Cinematic Photo -->
+    <section class="hidden lg:block w-1/2 h-screen sticky top-0 bg-black overflow-hidden">
+        <div class="w-full h-full bg-cover bg-center opacity-90 scale-105"
+             style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDHdsWFr5acEXErRKpNcaM5LdCiey58ZGIzsyg6OoBi0HouzlYzZNT0UwHR59usUbrOq-YukQdBQENTKcdbbaoTa2uJae1ZF72Uqs7pnr5im0FD5hbn9UxW5b7fxi1xxplRLYGgVhm6m22OJdR5-OtX0XeuI7ED2t6Z9GEZiF0GqEfFIq7JXVg3AtVq-1faX_fbYooJUEEJ4Zp7OMQY5EZ4NOF1bAPEQLvEWwQSS30Lml8OxfxaMD6OaimRLgFkmDXUsKgNJ2AKBT0');">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent"></div>
+    </section>
+
+    <!-- Right Side: White Panel -->
+    <section class="w-full lg:w-1/2 bg-white flex flex-col justify-center px-8 md:px-20 lg:px-24 py-28 overflow-y-auto">
+        <div class="max-w-xl w-full mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extralight tracking-tight text-on-surface mb-2 uppercase">CREATE ACCOUNT</h1>
+            <p class="font-light tracking-[0.05em] uppercase text-[10px] text-[#727784] mb-12">Step into the future of automotive excellence.</p>
+
+            <!-- Alerts -->
+            <?php if ($errors): ?>
+            <div class="coss-alert-error mb-8">
                 <?php foreach ($errors as $e): ?>
-                    <p>• <?= htmlspecialchars($e) ?></p>
+                <p>• <?= htmlspecialchars($e) ?></p>
                 <?php endforeach; ?>
             </div>
-        <?php endif; ?>
+            <?php endif; ?>
+            <?php if ($success): ?>
+            <div class="coss-alert-success mb-8"><?= $success ?></div>
+            <?php endif; ?>
 
-        <?php if ($success): ?>
-            <div class="feedback success"><?= $success ?></div>
-        <?php endif; ?>
+            <form class="space-y-12" action="registration.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-        <!-- Registration form -->
-        <form class="registration__form" action="registration.php" method="POST">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-            <input type="text" name="firstName" placeholder="First Name" required value="<?= htmlspecialchars($firstName ?? '') ?>">
-            <input type="text" name="lastName" placeholder="Last Name" required value="<?= htmlspecialchars($lastName ?? '') ?>">
-            <input type="text" name="address" placeholder="Address" required value="<?= htmlspecialchars($address ?? '') ?>">
-            <input type="tel" name="phone" placeholder="Phone" required value="<?= htmlspecialchars($phone ?? '') ?>">
-            <input type="email" name="email" placeholder="Email" required value="<?= htmlspecialchars($email ?? '') ?>">
-            <input type="text" name="username" placeholder="Username" required value="<?= htmlspecialchars($username ?? '') ?>">
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit" class="registration__btn">Register</button>
-        </form>
+                <!-- Role Selector -->
+                <div class="space-y-4">
+                    <label class="font-light tracking-[0.1em] uppercase text-[10px] text-[#424753] block">I WANT TO</label>
+                    <div class="grid grid-cols-2 gap-0 border border-[#c2c6d5]/30">
+                        <label id="buyer-card" class="relative group cursor-pointer p-8 bg-[#1b1c1c] text-white transition-all duration-300 block text-center">
+                            <input id="buyer" class="hidden" name="userType" type="radio" value="buyer" checked/>
+                            <span class="material-symbols-outlined block mb-4" style="font-variation-settings: 'wght' 200;">shopping_bag</span>
+                            <span class="font-light tracking-widest text-sm uppercase">BUYER</span>
+                        </label>
+                        <label id="seller-card" class="relative group cursor-pointer p-8 bg-transparent text-on-surface hover:bg-[#efeded] transition-all duration-300 block text-center">
+                            <input id="seller" class="hidden" name="userType" type="radio" value="seller"/>
+                            <span class="material-symbols-outlined block mb-4 opacity-60" style="font-variation-settings: 'wght' 200;">sell</span>
+                            <span class="font-light tracking-widest text-sm uppercase opacity-60">SELLER</span>
+                        </label>
+                    </div>
+                </div>
 
-        <!-- Back to home link -->
-        <p><a href="index.php">&larr; Back to Home</a></p>
-    </main>
+                <!-- Personal Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+                    <div class="relative border-b border-[#c2c6d5]/50 focus-within:border-[#0051ae] transition-colors py-2">
+                        <label class="absolute -top-6 left-0 font-light tracking-[0.1em] uppercase text-[10px] text-[#424753]">First Name</label>
+                        <input class="w-full bg-transparent border-none p-0 text-sm tracking-wide font-light" name="firstName" placeholder="Alexander" type="text" value="<?= htmlspecialchars($firstName) ?>" required/>
+                    </div>
+                    <div class="relative border-b border-[#c2c6d5]/50 focus-within:border-[#0051ae] transition-colors py-2">
+                        <label class="absolute -top-6 left-0 font-light tracking-[0.1em] uppercase text-[10px] text-[#424753]">Last Name</label>
+                        <input class="w-full bg-transparent border-none p-0 text-sm tracking-wide font-light" name="lastName" placeholder="Vance" type="text" value="<?= htmlspecialchars($lastName) ?>" required/>
+                    </div>
+                    <div class="md:col-span-2 relative border-b border-[#c2c6d5]/50 focus-within:border-[#0051ae] transition-colors py-2">
+                        <label class="absolute -top-6 left-0 font-light tracking-[0.1em] uppercase text-[10px] text-[#424753]">Full Address</label>
+                        <input class="w-full bg-transparent border-none p-0 text-sm tracking-wide font-light" name="address" placeholder="123 Performance Way, Auckland 1010" type="text" value="<?= htmlspecialchars($address) ?>" required/>
+                    </div>
+                    <div class="relative border-b border-[#c2c6d5]/50 focus-within:border-[#0051ae] transition-colors py-2">
+                        <label class="absolute -top-6 left-0 font-light tracking-[0.1em] uppercase text-[10px] text-[#424753]">Phone Number</label>
+                        <input class="w-full bg-transparent border-none p-0 text-sm tracking-wide font-light" name="phone" placeholder="+64 9 000 0000" type="tel" value="<?= htmlspecialchars($phone) ?>" required/>
+                    </div>
+                    <div class="relative border-b border-[#c2c6d5]/50 focus-within:border-[#0051ae] transition-colors py-2">
+                        <label class="absolute -top-6 left-0 font-light tracking-[0.1em] uppercase text-[10px] text-[#424753]">Email Address</label>
+                        <input class="w-full bg-transparent border-none p-0 text-sm tracking-wide font-light" name="email" placeholder="alex@coss.com" type="email" value="<?= htmlspecialchars($email) ?>" required/>
+                    </div>
+                </div>
 
-    <?php include 'footer.php'; ?>
+                <!-- Security -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10 pt-4">
+                    <div class="relative border-b border-[#c2c6d5]/50 focus-within:border-[#0051ae] transition-colors py-2">
+                        <label class="absolute -top-6 left-0 font-light tracking-[0.1em] uppercase text-[10px] text-[#424753]">Username</label>
+                        <input class="w-full bg-transparent border-none p-0 text-sm tracking-wide font-light" name="username" placeholder="avance_01" type="text" value="<?= htmlspecialchars($username) ?>" required/>
+                    </div>
+                    <div class="relative border-b border-[#c2c6d5]/50 focus-within:border-[#0051ae] transition-colors py-2">
+                        <label class="absolute -top-6 left-0 font-light tracking-[0.1em] uppercase text-[10px] text-[#424753]">Password</label>
+                        <input class="w-full bg-transparent border-none p-0 text-sm tracking-wide font-light" name="password" placeholder="••••••••••••" type="password" required/>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="pt-4">
+                    <button class="w-full bg-[#1b1c1c] text-white font-light tracking-[0.2em] uppercase text-sm py-6 transition-all duration-300 hover:bg-[#0051ae] active:scale-[0.98]" type="submit">
+                        CREATE ACCOUNT
+                    </button>
+                    <p class="mt-6 text-center font-light tracking-widest text-[10px] text-[#727784] uppercase">
+                        Already have an account?
+                        <a class="text-on-surface border-b border-on-surface/20 hover:border-[#0051ae] transition-colors" href="login.php">Sign In</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="w-full bg-[#262626] py-10 px-8 md:px-16">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="text-xl font-thin tracking-[0.2em] text-white uppercase">COSS</div>
+        <div class="flex gap-8">
+            <a class="font-light tracking-[0.05em] uppercase text-[10px] text-gray-400 hover:text-white transition-colors" href="#">PRIVACY</a>
+            <a class="font-light tracking-[0.05em] uppercase text-[10px] text-gray-400 hover:text-white transition-colors" href="#">CONTACT</a>
+            <a class="font-light tracking-[0.05em] uppercase text-[10px] text-gray-400 hover:text-white transition-colors" href="#">TERMS</a>
+        </div>
+        <div class="font-light tracking-[0.05em] uppercase text-[10px] text-gray-400">© <?= date('Y') ?> COSS AUTOMOTIVE. ALL RIGHTS RESERVED.</div>
+    </div>
+</footer>
+
+<script>
+// Role selector toggle visual
+document.querySelectorAll('input[name="userType"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        var buyerCard = document.getElementById('buyer-card');
+        var sellerCard = document.getElementById('seller-card');
+        var buyerIcon = buyerCard.querySelector('.material-symbols-outlined');
+        var sellerLabel = sellerCard.querySelector('span:last-child');
+        var buyerLabel = buyerCard.querySelector('span:last-child');
+        var sellerIcon = sellerCard.querySelector('.material-symbols-outlined');
+
+        if (this.value === 'buyer') {
+            buyerCard.classList.add('bg-[#1b1c1c]', 'text-white');
+            buyerCard.classList.remove('bg-transparent', 'text-on-surface');
+            sellerCard.classList.remove('bg-[#1b1c1c]', 'text-white');
+            sellerCard.classList.add('bg-transparent', 'text-on-surface');
+        } else {
+            sellerCard.classList.add('bg-[#1b1c1c]', 'text-white');
+            sellerCard.classList.remove('bg-transparent', 'text-on-surface');
+            buyerCard.classList.remove('bg-[#1b1c1c]', 'text-white');
+            buyerCard.classList.add('bg-transparent', 'text-on-surface');
+        }
+    });
+});
+</script>
 </body>
 </html>
