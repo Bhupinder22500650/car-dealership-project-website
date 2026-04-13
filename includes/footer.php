@@ -14,11 +14,11 @@ $current_year = date("Y");
 
 <style>
 .footer {
-    background-color: #1e1e1e;
+    background-color: #0a0a0a;
     padding: 2rem;
     margin-top: 3rem;
     text-align: center;
-    border-top: 1px solid #333;
+    border-top: 2px solid #333333;
     position: relative;
     bottom: 0;
     width: 100%;
@@ -30,19 +30,22 @@ $current_year = date("Y");
 }
 
 .footer__text {
-    color: #888;
+    color: #888888;
     margin: 0.5rem 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .footer__link {
-    color: #00ffae;
+    color: #ffffff;
     text-decoration: none;
-    transition: color 0.3s ease;
+    font-weight: 700;
+    transition: color 0.2s linear;
 }
 
 .footer__link:hover {
-    color: #00c68e;
-    text-decoration: underline;
+    color: #e11a22; /* Acura Red */
+    text-decoration: none;
 }
 </style> 

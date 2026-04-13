@@ -1,0 +1,18 @@
+[13-Apr-2026 09:37:30 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Connection refused in /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php:26
+Stack trace:
+#0 /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php(26): mysqli->__construct('127.0.0.1', 'root', Object(SensitiveParameterValue), 'coss')
+#1 /Users/bhupinderrakhra/Downloads/CoSS project/coss/index.php(10): require_once('/Users/bhupinde...')
+#2 {main}
+  thrown in /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php on line 26
+[13-Apr-2026 09:37:58 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Connection refused in /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php:26
+Stack trace:
+#0 /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php(26): mysqli->__construct('127.0.0.1', 'root', Object(SensitiveParameterValue), 'coss')
+#1 /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/create_tables.php(3): require_once('/Users/bhupinde...')
+#2 {main}
+  thrown in /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php on line 26
+[13-Apr-2026 09:38:14 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Connection refused in /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php:26
+Stack trace:
+#0 /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php(26): mysqli->__construct('127.0.0.1', 'root', Object(SensitiveParameterValue), 'coss')
+#1 /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/create_tables.php(3): require_once('/Users/bhupinde...')
+#2 {main}
+  thrown in /Users/bhupinderrakhra/Downloads/CoSS project/coss/config/database.php on line 26

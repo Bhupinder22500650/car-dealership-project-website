@@ -6,15 +6,15 @@
 // 1. Initialize session and include database connection
 // --------------------------------------------------------------------------
 session_start();
-require_once __DIR__ . '/db/db_connect.php';
+require_once dirname(__DIR__) . '/config/database.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['seller_id'])) {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_type'] !== 'seller') {
     http_response_code(401);
     echo json_encode([
         'success' => false,
-        'message' => 'Please login to upload images.'
+        'message' => 'Please login as a seller to upload images.'
     ]);
     exit;
 }
@@ -77,7 +77,7 @@ function handleImageUpload($file, $car_id) {
     );
 
     // Create upload directory if it doesn't exist
-    $upload_dir = __DIR__ . '/assets/img/cars/';
+    $upload_dir = dirname(__DIR__) . '/assets/img/cars/';
     if (!is_dir($upload_dir)) {
         if (!mkdir($upload_dir, 0777, true)) {
             throw new RuntimeException('Failed to create upload directory. Please check permissions.');
@@ -97,7 +97,7 @@ function handleImageUpload($file, $car_id) {
     }
 
     // Ensure current user owns this car before writing image path
-    $seller_id = (int)$_SESSION['seller_id'];
+    $seller_id = (int)$_SESSION['user_id'];
     $owner_stmt = $conn->prepare("SELECT car_id FROM cars WHERE car_id = ? AND seller_id = ?");
     $owner_stmt->bind_param('ii', $car_id, $seller_id);
     $owner_stmt->execute();
