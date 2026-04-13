@@ -1,0 +1,14 @@
+# COSS - Apache Configuration
+Options -Indexes
+
+# PHP upload limits for COSS image uploads (HEIC, WebP, etc.)
+php_value upload_max_filesize 25M
+php_value post_max_size 30M
+php_value memory_limit 256M
+php_value max_execution_time 300
+
+# Security: prevent direct execution of files in assets
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
