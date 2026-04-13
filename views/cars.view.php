@@ -1,543 +1,434 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-  <?php // ---------------------------------------------------------------------- ?>
-  <?php // Page metadata & resources                                      ?>
-  <?php // ---------------------------------------------------------------------- ?>
-  <meta charset="UTF-8">
-  <title>Manage Cars – COSS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/css/index.css">
-  <script src="assets/js/script.js" defer></script>
-
-  <?php // ---------------------------------------------------------------------- ?>
-  <?php // Inline styles for car listing form                              ?>
-  <?php // ---------------------------------------------------------------------- ?>
-  <style>
-    body {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        margin: 0;
-        background-color: #121212;
-        color: #e0e0e0;
-    }
-    main {
-        flex: 1;
-        padding: 2rem;
-    }
-    .car-form {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem;
-      background-color: #1e1e1e;
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(0,255,174,0.15);
-      transition: transform 0.3s ease;
-    }
-
-    .car-form:hover {
-      transform: translateY(-5px);
-    }
-
-    .car-form__title {
-      font-size: 2.5rem;
-      color: #ffffff;
-      margin-bottom: 2rem;
-      text-align: center;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .car-form__grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .car-form__input {
-      width: 100%;
-      padding: 1rem;
-      font-size: 1rem;
-      background-color: #2c2c2c;
-      border: 1px solid #444;
-      color: #e0e0e0;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      margin-bottom: 1rem;
-      box-sizing: border-box;
-    }
-
-    .car-form__input:focus {
-      background-color: #333;
-      outline: none;
-      border-color: #ffffff;
-    }
-
-    .car-form__input::placeholder {
-      color: #888;
-    }
-
-    .car-form__button {
-      width: 100%;
-      padding: 1.2rem;
-      font-size: 1.1rem;
-      background: #e11a22;
-      color: #ffffff;
-      border: 2px solid #e11a22;
-      border-radius: 0; /* Sharp edges */
-      cursor: pointer;
-      transition: all 0.2s linear;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-top: 1rem;
-      box-sizing: border-box;
-    }
-
-    .car-form__button:hover {
-      background: #000000;
-      color: #ffffff;
-      border-color: #e11a22;
-    }
-
-    .cars-list {
-      margin-top: 3rem;
-    }
-
-    .cars-list__title {
-      font-size: 2rem;
-      color: #ffffff;
-      margin-bottom: 2rem;
-      text-align: center;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .car-item {
-      background-color: #111111;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      transition: all 0.2s linear;
-      border: 1px solid #222222;
-    }
-
-    .car-item:hover {
-      transform: translateY(-3px);
-      border-color: #e11a22; /* Red accent */
-    }
-
-    .car-info {
-      flex-grow: 1;
-    }
-
-    .car-info__title {
-      font-size: 1.4rem;
-      color: #fff;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-    }
-
-    .car-info__details {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .car-info__detail {
-      background-color: #363636;
-      padding: 0.8rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
-
-    .car-info__label {
-      color: #888;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.3rem;
-    }
-
-    .car-info__value {
-      color: #fff;
-      font-weight: 500;
-    }
-
-    .car-actions {
-      display: flex;
-      gap: 1rem;
-      flex-direction: column;
-    }
-
-    .car-actions button {
-      padding: 0.8rem 1.5rem;
-      border: 2px solid transparent;
-      border-radius: 0; /* Sharp edges */
-      cursor: pointer;
-      transition: all 0.2s linear;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-size: 0.9rem;
-    }
-
-    .edit-btn {
-      background-color: #e11a22;
-      color: #ffffff;
-    }
-
-    .upload-btn {
-      background-color: transparent;
-      color: #ffffff;
-      border: 2px solid #555555 !important;
-    }
-    
-    .upload-btn:hover {
-      border: 2px solid #ffffff !important;
-    }
-
-    .delete-btn {
-      background-color: transparent;
-      color: #ff4d4d;
-      border: 2px solid #ff4d4d !important;
-    }
-
-    .car-actions button:hover {
-      background-color: #000000;
-      color: #ffffff;
-    }
-
-    .car-image {
-      width: 200px;
-      height: 150px;
-      object-fit: cover;
-      border-radius: 0;
-      border: 2px solid #333333;
-      transition: transform 0.3s ease;
-    }
-
-    .car-image:hover {
-      transform: scale(1.05);
-    }
-
-    .car-image-placeholder {
-      width: 200px;
-      height: 150px;
-      background-color: #111111;
-      border: 2px solid #333333;
-      border-radius: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #666;
-      font-size: 0.9rem;
-      text-align: center;
-      transition: all 0.2s linear;
-    }
-
-    .car-image-placeholder:hover {
-      border-color: #ffffff;
-      color: #888;
-    }
-
-    .feedback {
-      padding: 1.2rem;
-      margin-bottom: 2rem;
-      border-radius: 8px;
-      text-align: center;
-      font-weight: 500;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .feedback.error {
-      background-color: rgba(255, 77, 77, 0.1);
-      color: #ff4d4d;
-      border: 1px solid rgba(255, 77, 77, 0.3);
-    }
-
-    .feedback.success {
-      background-color: transparent;
-      color: #ffffff;
-      border: 1px solid #333333;
-      border-left: 4px solid #e11a22; /* Red accent on success */
-    }
-
-    .edit-form {
-      display: none;
-      margin-top: 1.5rem;
-      padding: 1.5rem;
-      background-color: #111111;
-      border-radius: 0;
-      border: 1px solid #333333;
-      animation: slideDown 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideDown {
-      from { 
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to { 
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 768px) {
-      .car-form__grid {
-        grid-template-columns: 1fr;
-      }
-
-      .car-item {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .car-info__details {
-        grid-template-columns: 1fr;
-      }
-
-      .car-actions {
-        flex-direction: row;
-        justify-content: center;
-      }
-
-      .car-image, .car-image-placeholder {
-        width: 100%;
-        height: 200px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>My Listings | COSS AUTOMOTIVE</title>
+    <meta name="description" content="Manage your COSS automotive listings. Add, edit, and remove vehicle listings.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php include 'includes/stitch_head.php'; ?>
+    <style>
+        details[open] summary .summary-icon { transform: rotate(45deg); }
+        .summary-icon { transition: transform 0.3s; }
+        select { appearance: none; -webkit-appearance: none; }
+    </style>
 </head>
-<body>
-    <?php include 'includes/navbar.php'; ?>
+<body class="bg-surface text-on-surface">
 
-    <main class="car-form">
-        <h2 class="car-form__title">Manage Your Cars</h2>
+<?php include 'includes/navbar.php'; ?>
 
-        <!-- Display feedback messages -->
-        <?php if ($error): ?>
-            <div class="feedback error"><?= htmlspecialchars($error) ?></div>
-        <?php elseif ($success): ?>
-            <div class="feedback success"><?= htmlspecialchars($success) ?></div>
-        <?php endif; ?>
+<main class="pt-32 pb-40 px-6 md:px-24 max-w-7xl mx-auto">
 
-        <!-- Add Car Form -->
-        <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" id="addCarForm" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-            <div class="car-form__grid">
-                <input type="text" name="company" class="car-form__input" placeholder="Company Name" required value="<?= htmlspecialchars($company) ?>">
-                <input type="text" name="model" class="car-form__input" placeholder="Car Model" required value="<?= htmlspecialchars($model) ?>">
-                <input type="number" name="year" class="car-form__input" placeholder="Year" min="1900" max="<?= date('Y') ?>" required value="<?= htmlspecialchars($year) ?>">
-                <input type="number" name="price" class="car-form__input" placeholder="Price" step="0.01" required value="<?= htmlspecialchars($price) ?>">
-                <input type="number" name="mileage" class="car-form__input" placeholder="Mileage (km)" required value="<?= htmlspecialchars($mileage) ?>">
-                <select name="transmission" class="car-form__input" required>
-                    <option value="">Select Transmission</option>
-                    <option value="Automatic" <?= $transmission === 'Automatic' ? 'selected' : '' ?>>Automatic</option>
-                    <option value="Manual" <?= $transmission === 'Manual' ? 'selected' : '' ?>>Manual</option>
-                </select>
-                <select name="fuelType" class="car-form__input" required>
-                    <option value="">Select Fuel Type</option>
-                    <option value="Petrol" <?= $fuelType === 'Petrol' ? 'selected' : '' ?>>Petrol</option>
-                    <option value="Diesel" <?= $fuelType === 'Diesel' ? 'selected' : '' ?>>Diesel</option>
-                    <option value="Hybrid" <?= $fuelType === 'Hybrid' ? 'selected' : '' ?>>Hybrid</option>
-                    <option value="Electric" <?= $fuelType === 'Electric' ? 'selected' : '' ?>>Electric</option>
-                </select>
-                <input type="text" name="location" class="car-form__input" placeholder="Location" required value="<?= htmlspecialchars($location) ?>">
-                <select name="bodyType" class="car-form__input" required>
-                    <option value="">Select Body Type</option>
-                    <option value="Sedan" <?= $bodyType === 'Sedan' ? 'selected' : '' ?>>Sedan</option>
-                    <option value="SUV" <?= $bodyType === 'SUV' ? 'selected' : '' ?>>SUV</option>
-                    <option value="Hatchback" <?= $bodyType === 'Hatchback' ? 'selected' : '' ?>>Hatchback</option>
-                    <option value="Coupe" <?= $bodyType === 'Coupe' ? 'selected' : '' ?>>Coupe</option>
-                    <option value="Convertible" <?= $bodyType === 'Convertible' ? 'selected' : '' ?>>Convertible</option>
-                    <option value="Wagon" <?= $bodyType === 'Wagon' ? 'selected' : '' ?>>Wagon</option>
-                    <option value="Van" <?= $bodyType === 'Van' ? 'selected' : '' ?>>Van</option>
-                    <option value="Truck" <?= $bodyType === 'Truck' ? 'selected' : '' ?>>Truck</option>
-                </select>
-            </div>
-            <textarea name="description" class="car-form__input" placeholder="Vehicle Description" rows="4" style="resize:none;" required><?= htmlspecialchars($description) ?></textarea>
-            <input type="file" name="car_image" class="car-form__input" accept="image/*" id="carImage">
-            <button type="submit" class="car-form__button">Add Car</button>
-        </form>
+    <!-- Header -->
+    <header class="mb-20">
+        <h1 class="text-5xl md:text-7xl font-extralight tracking-[-0.02em] uppercase text-on-surface mb-4">MY LISTINGS</h1>
+        <p class="text-sm font-light tracking-[0.1em] text-on-surface-variant uppercase"><?= htmlspecialchars($_SESSION['username'] ?? '') ?>'s Automotive Collection</p>
+    </header>
 
-        <!-- Cars List -->
-        <div class="cars-list">
-            <h3 class="cars-list__title">Your Listed Cars</h3>
-            <?php foreach ($cars as $car): ?>
-                <div class="car-item" id="car-<?= $car['car_id'] ?>">
-                    <?php if ($car['image_url'] && file_exists($car['image_url'])): ?>
-                        <img src="<?= htmlspecialchars($car['image_url']) ?>" alt="<?= htmlspecialchars($car['car_model']) ?>" class="car-image">
-                    <?php else: ?>
-                        <div class="car-image-placeholder">
-                            No Image<br>Available
+    <!-- Feedback Messages -->
+    <?php if ($error): ?>
+    <div class="coss-alert-error mb-10"><?= htmlspecialchars($error) ?></div>
+    <?php elseif ($success): ?>
+    <div class="coss-alert-success mb-10"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
+
+    <!-- Add New Listing Panel -->
+    <section class="mb-24">
+        <details class="group bg-surface-container-low overflow-hidden" id="addListingPanel">
+            <summary class="flex items-center justify-between p-8 cursor-pointer list-none hover:bg-surface-container-high transition-colors">
+                <span class="text-lg font-light tracking-[0.1em] uppercase">Add New Listing</span>
+                <div class="w-12 h-12 flex items-center justify-center bg-on-background text-white summary-icon transition-transform duration-300">
+                    <span class="material-symbols-outlined">add</span>
+                </div>
+            </summary>
+            <div class="p-8 md:p-12 border-t border-outline-variant/10 bg-surface-container-lowest">
+                <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                        <!-- Brand -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Vehicle Brand</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none placeholder:text-outline-variant transition-all font-light text-sm uppercase tracking-wider"
+                                   name="company" placeholder="e.g. BMW" type="text" value="<?= htmlspecialchars($company) ?>" required/>
                         </div>
-                    <?php endif; ?>
-                    <div class="car-info">
-                        <h4 class="car-info__title"><?= htmlspecialchars($car['company_name'] . ' ' . $car['car_model']) ?></h4>
-                        <div class="car-info__details">
-                            <div class="car-info__detail">
-                                <div class="car-info__label">Year</div>
-                                <div class="car-info__value"><?= htmlspecialchars($car['car_year']) ?></div>
-                            </div>
-                            <div class="car-info__detail">
-                                <div class="car-info__label">Price</div>
-                                <div class="car-info__value">$<?= number_format($car['price'], 2) ?></div>
-                            </div>
-                            <div class="car-info__detail">
-                                <div class="car-info__label">Location</div>
-                                <div class="car-info__value"><?= htmlspecialchars($car['location']) ?></div>
-                            </div>
-                            <div class="car-info__detail">
-                                <div class="car-info__label">Body Type</div>
-                                <div class="car-info__value"><?= htmlspecialchars($car['body_type']) ?></div>
-                            </div>
+                        <!-- Model -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Car Model</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none placeholder:text-outline-variant transition-all font-light text-sm uppercase tracking-wider"
+                                   name="model" placeholder="e.g. M4 Competition" type="text" value="<?= htmlspecialchars($model) ?>" required/>
+                        </div>
+                        <!-- Year -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Production Year</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none placeholder:text-outline-variant transition-all font-light text-sm uppercase tracking-wider"
+                                   name="year" placeholder="<?= date('Y') ?>" type="number" min="1900" max="<?= date('Y') ?>" value="<?= htmlspecialchars($year) ?>" required/>
+                        </div>
+                        <!-- Price -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Asking Price (NZD)</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none placeholder:text-outline-variant transition-all font-light text-sm uppercase tracking-wider"
+                                   name="price" placeholder="85,000" type="number" step="0.01" value="<?= htmlspecialchars($price) ?>" required/>
+                        </div>
+                        <!-- Mileage -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Mileage (km)</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none placeholder:text-outline-variant transition-all font-light text-sm uppercase tracking-wider"
+                                   name="mileage" placeholder="e.g. 15000" type="number" value="<?= htmlspecialchars($mileage) ?>" required/>
+                        </div>
+                        <!-- Transmission -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Transmission</label>
+                            <select class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none transition-all font-light text-sm uppercase tracking-wider" name="transmission" required>
+                                <option value="">SELECT</option>
+                                <option value="Automatic" <?= $transmission === 'Automatic' ? 'selected' : '' ?>>Automatic</option>
+                                <option value="Manual"    <?= $transmission === 'Manual'    ? 'selected' : '' ?>>Manual</option>
+                            </select>
+                        </div>
+                        <!-- Fuel Type -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Fuel Type</label>
+                            <select class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none transition-all font-light text-sm uppercase tracking-wider" name="fuelType" required>
+                                <option value="">SELECT</option>
+                                <option value="Petrol"   <?= $fuelType === 'Petrol'   ? 'selected' : '' ?>>Petrol</option>
+                                <option value="Diesel"   <?= $fuelType === 'Diesel'   ? 'selected' : '' ?>>Diesel</option>
+                                <option value="Hybrid"   <?= $fuelType === 'Hybrid'   ? 'selected' : '' ?>>Hybrid</option>
+                                <option value="Electric" <?= $fuelType === 'Electric' ? 'selected' : '' ?>>Electric</option>
+                            </select>
+                        </div>
+                        <!-- Body Type -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Body Type</label>
+                            <select class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none transition-all font-light text-sm uppercase tracking-wider" name="bodyType" required>
+                                <option value="">SELECT</option>
+                                <?php foreach (['Sedan','SUV','Hatchback','Coupe','Convertible','Wagon','Van','Truck'] as $bt): ?>
+                                <option value="<?= $bt ?>" <?= $bodyType === $bt ? 'selected' : '' ?>><?= $bt ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <!-- Location -->
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Location</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none placeholder:text-outline-variant transition-all font-light text-sm uppercase tracking-wider"
+                                   name="location" placeholder="e.g. Auckland" type="text" value="<?= htmlspecialchars($location) ?>" required/>
                         </div>
                     </div>
-                    <div class="car-actions">
-                        <button class="edit-btn" onclick="showEditForm(<?= $car['car_id'] ?>)">Edit</button>
-                        <button class="upload-btn" onclick="uploadCarImage(<?= $car['car_id'] ?>)" data-car-id="<?= $car['car_id'] ?>">Upload Image</button>
-                        <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" style="display: inline;">
-                            <input type="hidden" name="car_id" value="<?= $car['car_id'] ?>">
+
+                    <!-- Description -->
+                    <div class="mb-10 space-y-2">
+                        <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Vehicle Description</label>
+                        <textarea class="w-full bg-[#f4f3f3] border-0 border-b border-outline-variant p-4 focus:ring-0 focus:border-primary focus:outline-none transition-all font-light text-sm resize-none placeholder:text-outline-variant"
+                                  name="description" rows="4" placeholder="Describe this vehicle..."><?= htmlspecialchars($description) ?></textarea>
+                    </div>
+
+                    <!-- Image Upload: Drag & Drop Zone -->
+                    <div class="mb-10 space-y-3">
+                        <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Vehicle Photo</label>
+
+                        <!-- Hidden real file input — accepts from ANY location on device -->
+                        <input id="carImageInput" name="car_image" type="file"
+                               class="sr-only"
+                               accept="image/jpeg,image/png,image/gif,image/webp,image/heic,image/heif,image/avif,image/bmp,image/tiff,image/svg+xml,.jpg,.jpeg,.png,.gif,.webp,.heic,.heif,.avif,.bmp,.tiff,.tif,.svg"/>
+
+                        <!-- Drop zone -->
+                        <div id="dropZone"
+                             class="relative border-2 border-dashed border-[#c2c6d5] bg-[#f9f8f8] rounded-none p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#0051ae] hover:bg-[#f0f4ff] transition-all duration-200 group min-h-[180px]"
+                             onclick="document.getElementById('carImageInput').click()">
+
+                            <!-- Upload icon -->
+                            <span id="dzIcon" class="material-symbols-outlined text-5xl text-[#c2c6d5] group-hover:text-[#0051ae] transition-colors mb-4"
+                                  style="font-variation-settings:'FILL' 0,'wght' 100,'GRAD' 0,'opsz' 48;">add_photo_alternate</span>
+
+                            <!-- Preview image (hidden until file chosen) -->
+                            <img id="dzPreview" src="" alt="Preview"
+                                 class="hidden absolute inset-0 w-full h-full object-contain p-4"/>
+
+                            <p id="dzText" class="text-xs font-light tracking-[0.1em] uppercase text-[#727784]">
+                                Click to browse &mdash; or drag &amp; drop a photo here
+                            </p>
+                            <p id="dzHint" class="text-[10px] mt-2 text-[#c2c6d5] tracking-widest uppercase">
+                                From Desktop · Downloads · Photos · iCloud · USB · Anywhere
+                            </p>
+                            <p id="dzFileName" class="hidden text-[11px] mt-3 font-semibold tracking-wider text-[#0051ae] uppercase"></p>
+                        </div>
+
+                        <!-- Clear button -->
+                        <button id="dzClear" type="button" onclick="clearDropzone(event)"
+                                class="hidden text-[10px] text-[#727784] hover:text-error uppercase tracking-widest flex items-center gap-1 transition-colors">
+                            <span class="material-symbols-outlined text-sm">close</span> Remove Photo
+                        </button>
+
+                        <p class="text-[10px] text-[#c2c6d5] tracking-widest uppercase">
+                            JPG · PNG · GIF · WebP · HEIC · HEIF · AVIF · BMP · TIFF · SVG &mdash; Max 20&nbsp;MB
+                        </p>
+                    </div>
+
+                    <button class="w-full md:w-auto px-16 py-4 bg-on-background text-white text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-primary transition-colors active:scale-95" type="submit">
+                        CREATE LISTING
+                    </button>
+                </form>
+            </div>
+        </details>
+    </section>
+
+    <!-- Listed Cars -->
+    <section class="space-y-0">
+        <?php if (empty($cars)): ?>
+        <div class="py-20 text-center border border-dashed border-outline-variant/20">
+            <span class="material-symbols-outlined text-4xl text-outline/40 mb-4 block" style="font-variation-settings:'FILL' 0,'wght' 100,'GRAD' 0,'opsz' 48;">sell</span>
+            <p class="text-[#424753] font-light tracking-widest uppercase text-xs">No listings yet. Add your first vehicle above.</p>
+        </div>
+        <?php endif; ?>
+
+        <?php foreach ($cars as $car):
+            $img_src = !empty($car['image_url']) && file_exists(dirname(__DIR__) . '/' . $car['image_url']) ? $car['image_url'] :
+                       'https://lh3.googleusercontent.com/aida-public/AB6AXuCFKsVjd_SZvoy6Je3F4uzU5bx_o-EyelEKVVyWcHJRX3F4ySbfD1dWJW-epXLmWDS6-8jPm24qjOLutWTnWPly8ZIQ7Tv6868GMv0_zB1oUKx--zv_2SPXIpTowXuQieR6ITz51n8IUYGPMeHMppTi_kG2upwHx6BYTvyBdnmi7XnepX7c6qFfzHEtQGPbqQroQh3N5Q3gS34QJda_wVx3c2cBuTUrEg3n78RYpCu1xOixvesICDmgtG5E1PO2uPT3zvzm8eQCVWM';
+            $car_year_field = $car['car_year'] ?? '';
+        ?>
+        <article class="group border-b border-outline-variant/10 transition-all hover:bg-white">
+            <div class="flex flex-col md:flex-row items-start gap-8 md:gap-12 py-12">
+                <!-- Thumbnail -->
+                <div class="w-full md:w-64 lg:w-80 h-48 flex-shrink-0 overflow-hidden bg-surface-container">
+                    <img alt="<?= htmlspecialchars(($car['company_name'] ?? '') . ' ' . ($car['car_model'] ?? '')) ?>"
+                         class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                         src="<?= htmlspecialchars($img_src) ?>"/>
+                </div>
+
+                <!-- Info + Actions -->
+                <div class="flex-grow flex flex-col justify-between">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between mb-6 md:mb-8 gap-4">
+                        <div>
+                            <div class="flex items-center gap-4 mb-2 flex-wrap">
+                                <h2 class="text-2xl md:text-3xl font-light tracking-tight uppercase">
+                                    <?= htmlspecialchars(($car['company_name'] ?? '') . ' ' . ($car['car_model'] ?? '')) ?>
+                                </h2>
+                                <span class="px-3 py-1 border border-primary text-primary text-[9px] font-bold tracking-[0.15em] uppercase">LISTED</span>
+                            </div>
+                            <p class="text-xs font-light tracking-widest text-on-surface-variant uppercase">
+                                <?= htmlspecialchars($car_year_field) ?>
+                                <?php if (!empty($car['transmission'])): ?> · <?= htmlspecialchars($car['transmission']) ?><?php endif; ?>
+                                <?php if (!empty($car['fuel_type'])): ?> · <?= htmlspecialchars($car['fuel_type']) ?><?php endif; ?>
+                                <?php if (!empty($car['mileage'])): ?> · <?= number_format($car['mileage']) ?> KM<?php endif; ?>
+                            </p>
+                        </div>
+                        <?php if (!empty($car['price'])): ?>
+                        <div class="text-right">
+                            <span class="text-2xl md:text-3xl font-extralight tracking-tighter">$<?= number_format($car['price']) ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-wrap items-center gap-8 pt-4 border-t border-outline-variant/10">
+                        <button class="text-[10px] font-semibold tracking-[0.2em] uppercase text-on-surface hover:text-primary transition-colors flex items-center gap-2"
+                                onclick="toggleEdit(<?= (int)$car['car_id'] ?>)" type="button">
+                            <span class="material-symbols-outlined text-sm">edit</span> Edit Listing
+                        </button>
+                        <a class="text-[10px] font-semibold tracking-[0.2em] uppercase text-on-surface hover:text-primary transition-colors flex items-center gap-2"
+                           href="car-details.php?id=<?= (int)$car['car_id'] ?>">
+                            <span class="material-symbols-outlined text-sm">visibility</span> View
+                        </a>
+                        <button class="text-[10px] font-semibold tracking-[0.2em] uppercase text-on-surface hover:text-error transition-colors flex items-center gap-2"
+                                onclick="uploadCarImage(<?= (int)$car['car_id'] ?>)" data-car-id="<?= (int)$car['car_id'] ?>" type="button">
+                            <span class="material-symbols-outlined text-sm">photo_camera</span> Upload Image
+                        </button>
+                        <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" class="inline" onsubmit="return confirm('Delete this listing?')">
+                            <input type="hidden" name="car_id" value="<?= (int)$car['car_id'] ?>">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                            <button type="submit" name="delete_car" class="delete-btn" onclick="return confirm('Are you sure you want to delete this car?')">Delete</button>
+                            <button type="submit" name="delete_car" class="text-[10px] font-semibold tracking-[0.2em] uppercase text-on-surface hover:text-error transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">delete</span> Delete
+                            </button>
                         </form>
                     </div>
                 </div>
-                <!-- Edit Form (Hidden by default) -->
-                <div class="edit-form" id="edit-form-<?= $car['car_id'] ?>">
-                    <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" id="editCarForm-<?= $car['car_id'] ?>">
-                        <input type="hidden" name="car_id" value="<?= $car['car_id'] ?>">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                        <div class="car-form__grid">
-                            <input type="text" name="company" class="car-form__input" value="<?= htmlspecialchars($car['company_name']) ?>" required>
-                            <input type="text" name="model" class="car-form__input" value="<?= htmlspecialchars($car['car_model']) ?>" required>
-                            <input type="number" name="year" class="car-form__input" value="<?= htmlspecialchars($car['car_year']) ?>" required>
-                            <input type="number" name="price" class="car-form__input" value="<?= htmlspecialchars($car['price']) ?>" step="0.01" required>
-                            <input type="number" name="mileage" class="car-form__input" value="<?= htmlspecialchars($car['mileage']) ?>" required>
-                            <select name="transmission" class="car-form__input" required>
-                                <option value="Automatic" <?= $car['transmission'] === 'Automatic' ? 'selected' : '' ?>>Automatic</option>
-                                <option value="Manual" <?= $car['transmission'] === 'Manual' ? 'selected' : '' ?>>Manual</option>
-                            </select>
-                            <select name="fuelType" class="car-form__input" required>
-                                <option value="Petrol" <?= $car['fuel_type'] === 'Petrol' ? 'selected' : '' ?>>Petrol</option>
-                                <option value="Diesel" <?= $car['fuel_type'] === 'Diesel' ? 'selected' : '' ?>>Diesel</option>
-                                <option value="Hybrid" <?= $car['fuel_type'] === 'Hybrid' ? 'selected' : '' ?>>Hybrid</option>
-                                <option value="Electric" <?= $car['fuel_type'] === 'Electric' ? 'selected' : '' ?>>Electric</option>
-                            </select>
-                            <input type="text" name="location" class="car-form__input" value="<?= htmlspecialchars($car['location']) ?>" required>
-                            <select name="bodyType" class="car-form__input" required>
-                                <option value="Sedan" <?= $car['body_type'] === 'Sedan' ? 'selected' : '' ?>>Sedan</option>
-                                <option value="SUV" <?= $car['body_type'] === 'SUV' ? 'selected' : '' ?>>SUV</option>
-                                <option value="Hatchback" <?= $car['body_type'] === 'Hatchback' ? 'selected' : '' ?>>Hatchback</option>
-                                <option value="Coupe" <?= $car['body_type'] === 'Coupe' ? 'selected' : '' ?>>Coupe</option>
-                                <option value="Convertible" <?= $car['body_type'] === 'Convertible' ? 'selected' : '' ?>>Convertible</option>
-                                <option value="Wagon" <?= $car['body_type'] === 'Wagon' ? 'selected' : '' ?>>Wagon</option>
-                                <option value="Van" <?= $car['body_type'] === 'Van' ? 'selected' : '' ?>>Van</option>
-                                <option value="Truck" <?= $car['body_type'] === 'Truck' ? 'selected' : '' ?>>Truck</option>
+            </div>
+
+            <!-- Edit Form (hidden) -->
+            <div id="edit-form-<?= (int)$car['car_id'] ?>" class="hidden bg-surface-container-low p-8 md:p-12 mb-4">
+                <h3 class="text-xs font-medium tracking-[0.2em] uppercase mb-8 text-on-surface-variant">EDIT: <?= htmlspecialchars(($car['company_name'] ?? '') . ' ' . ($car['car_model'] ?? '')) ?></h3>
+                <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post">
+                    <input type="hidden" name="car_id" value="<?= (int)$car['car_id'] ?>">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Brand</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="company" value="<?= htmlspecialchars($car['company_name'] ?? '') ?>" required/>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Model</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="model" value="<?= htmlspecialchars($car['car_model'] ?? '') ?>" required/>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Year</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="year" type="number" value="<?= htmlspecialchars($car_year_field) ?>" required/>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Price</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="price" type="number" step="0.01" value="<?= htmlspecialchars($car['price'] ?? '') ?>" required/>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Mileage (km)</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="mileage" type="number" value="<?= htmlspecialchars($car['mileage'] ?? '') ?>" required/>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Location</label>
+                            <input class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="location" value="<?= htmlspecialchars($car['location'] ?? '') ?>" required/>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Transmission</label>
+                            <select class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="transmission" required>
+                                <option value="Automatic" <?= ($car['transmission'] ?? '') === 'Automatic' ? 'selected' : '' ?>>Automatic</option>
+                                <option value="Manual"    <?= ($car['transmission'] ?? '') === 'Manual'    ? 'selected' : '' ?>>Manual</option>
                             </select>
                         </div>
-                        <textarea name="description" class="car-form__input" rows="4" style="resize:none;" required><?= htmlspecialchars($car['description']) ?></textarea>
-                        <button type="submit" name="edit_car" class="car-form__button">Update Car</button>
-                    </form>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    </main>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Fuel Type</label>
+                            <select class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="fuelType" required>
+                                <option value="Petrol"   <?= ($car['fuel_type'] ?? '') === 'Petrol'   ? 'selected' : '' ?>>Petrol</option>
+                                <option value="Diesel"   <?= ($car['fuel_type'] ?? '') === 'Diesel'   ? 'selected' : '' ?>>Diesel</option>
+                                <option value="Hybrid"   <?= ($car['fuel_type'] ?? '') === 'Hybrid'   ? 'selected' : '' ?>>Hybrid</option>
+                                <option value="Electric" <?= ($car['fuel_type'] ?? '') === 'Electric' ? 'selected' : '' ?>>Electric</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Body Type</label>
+                            <select class="w-full bg-transparent border-0 border-b border-outline-variant py-3 px-0 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm" name="bodyType" required>
+                                <?php foreach (['Sedan','SUV','Hatchback','Coupe','Convertible','Wagon','Van','Truck'] as $bt): ?>
+                                <option value="<?= $bt ?>" <?= ($car['body_type'] ?? '') === $bt ? 'selected' : '' ?>><?= $bt ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-10 space-y-2">
+                        <label class="block text-[10px] font-medium tracking-[0.15em] uppercase text-outline">Description</label>
+                        <textarea class="w-full bg-[#f4f3f3] border-0 border-b border-outline-variant p-4 focus:ring-0 focus:border-primary focus:outline-none font-light text-sm resize-none" name="description" rows="3"><?= htmlspecialchars($car['description'] ?? '') ?></textarea>
+                    </div>
+                    <button type="submit" name="edit_car" class="px-12 py-4 bg-on-background text-white text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-primary transition-colors active:scale-95">
+                        UPDATE LISTING
+                    </button>
+                </form>
+            </div>
+        </article>
+        <?php endforeach; ?>
+    </section>
 
-    <?php include 'includes/footer.php'; ?>
+</main>
 
-    <script>
-        const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>';
+<?php include 'includes/footer.php'; ?>
 
-        function showEditForm(carId) {
-            const editForm = document.getElementById(`edit-form-${carId}`);
-            if (editForm.style.display === 'block') {
-                editForm.style.display = 'none';
-            } else {
-                // Hide all other edit forms first
-                document.querySelectorAll('.edit-form').forEach(form => {
-                    form.style.display = 'none';
-                });
-                editForm.style.display = 'block';
-            }
+<script>
+const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES) ?>';
+
+function toggleEdit(carId) {
+    var form = document.getElementById('edit-form-' + carId);
+    if (!form) return;
+    // Close others
+    document.querySelectorAll('[id^="edit-form-"]').forEach(function(f) {
+        if (f.id !== 'edit-form-' + carId) f.classList.add('hidden');
+    });
+    form.classList.toggle('hidden');
+}
+
+function uploadCarImage(carId) {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        var formData = new FormData();
+        formData.append('car_image', file);
+        formData.append('car_id', carId);
+        formData.append('csrf_token', csrfToken);
+        var btn = document.querySelector('[data-car-id="' + carId + '"]');
+        btn.textContent = 'UPLOADING...';
+        btn.disabled = true;
+        fetch('api/upload_handler.php', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    var carItem = btn.closest('article');
+                    var img = carItem.querySelector('img');
+                    if (img) img.src = data.image_url;
+                    btn.textContent = 'UPLOADED ✓';
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    alert('Upload failed: ' + data.message);
+                    btn.textContent = 'Upload Image';
+                    btn.disabled = false;
+                }
+            })
+            .catch(() => { alert('Upload error.'); btn.textContent = 'Upload Image'; btn.disabled = false; });
+    };
+    input.click();
+}
+
+const carImageInput = document.getElementById('carImageInput');
+const dropZone = document.getElementById('dropZone');
+const dzPreview = document.getElementById('dzPreview');
+const dzIcon = document.getElementById('dzIcon');
+const dzText = document.getElementById('dzText');
+const dzHint = document.getElementById('dzHint');
+const dzFileName = document.getElementById('dzFileName');
+const dzClear = document.getElementById('dzClear');
+
+function showDropzoneFile(file) {
+    if (!file) {
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        dzPreview.src = e.target.result;
+        dzPreview.classList.remove('hidden');
+        dzIcon.classList.add('hidden');
+        dzText.classList.add('hidden');
+        dzHint.classList.add('hidden');
+        dzFileName.textContent = file.name;
+        dzFileName.classList.remove('hidden');
+        dzClear.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearDropzone(event) {
+    if (event) {
+        event.preventDefault();
+    }
+    carImageInput.value = '';
+    dzPreview.src = '';
+    dzPreview.classList.add('hidden');
+    dzIcon.classList.remove('hidden');
+    dzText.classList.remove('hidden');
+    dzHint.classList.remove('hidden');
+    dzFileName.classList.add('hidden');
+    dzFileName.textContent = '';
+    dzClear.classList.add('hidden');
+}
+
+if (carImageInput && dropZone) {
+    carImageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            showDropzoneFile(this.files[0]);
         }
+    });
 
-        // Add image upload functionality
-        function uploadCarImage(carId) {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('border-[#0051ae]', 'bg-[#f0f4ff]');
+    });
 
-                const formData = new FormData();
-                formData.append('car_image', file);
-                formData.append('car_id', carId);
-                formData.append('csrf_token', csrfToken);
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-[#0051ae]', 'bg-[#f0f4ff]');
+    });
 
-                // Show loading state
-                const uploadBtn = document.querySelector(`[data-car-id="${carId}"]`);
-                const originalText = uploadBtn.textContent;
-                uploadBtn.textContent = 'Uploading...';
-                uploadBtn.disabled = true;
-
-                fetch('api/upload_handler.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update image on the page
-                        const carItem = uploadBtn.closest('.car-item');
-                        const imgContainer = carItem.querySelector('.car-image, .car-image-placeholder');
-                        if (imgContainer) {
-                            if (imgContainer.classList.contains('car-image-placeholder')) {
-                                const newImg = document.createElement('img');
-                                newImg.src = data.image_url;
-                                newImg.alt = carItem.querySelector('h4').textContent;
-                                newImg.className = 'car-image';
-                                imgContainer.parentNode.replaceChild(newImg, imgContainer);
-                            } else {
-                                imgContainer.src = data.image_url;
-                            }
-                        }
-                        
-                        // Show success message
-                        alert('Image uploaded successfully!');
-                    } else {
-                        throw new Error(data.message);
-                    }
-                })
-                .catch(error => {
-                    alert('Error uploading image: ' + error.message);
-                })
-                .finally(() => {
-                    // Reset button state
-                    uploadBtn.textContent = originalText;
-                    uploadBtn.disabled = false;
-                });
-            };
-
-            input.click();
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-[#0051ae]', 'bg-[#f0f4ff]');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            carImageInput.files = e.dataTransfer.files;
+            showDropzoneFile(e.dataTransfer.files[0]);
         }
-    </script>
+    });
+}
+</script>
 </body>
 </html>

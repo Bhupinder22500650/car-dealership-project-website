@@ -16,11 +16,11 @@ ini_set('error_log', __DIR__ . '/../error_log.txt');
 // --------------------------------------------------------------------------
 // Database Connection (Environment Variables)
 // --------------------------------------------------------------------------
-// Use environment variables for DB credentials, fallback to local settings
-$host   = getenv('DB_HOST') ?: '127.0.0.1';
-$user   = getenv('DB_USER') ?: 'root';
-$pass   = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
-$dbname = getenv('DB_NAME') ?: 'coss';
+// Use environment variables for DB credentials, fallback to InfinityFree settings
+$host   = getenv('DB_HOST') ?: 'sql112.infinityfree.com';
+$user   = getenv('DB_USER') ?: 'if0_41538800';
+$pass   = getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'eijblXG0bJg';
+$dbname = getenv('DB_NAME') ?: 'if0_41538800_coss';
 
 // Create connection
 $conn = new mysqli($host, $user, $pass, $dbname);

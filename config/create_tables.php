@@ -8,6 +8,13 @@ function tableExists($conn, $tableName) {
     return $result->num_rows > 0;
 }
 
+function columnExists($conn, $tableName, $columnName) {
+    $safeTable = $conn->real_escape_string($tableName);
+    $safeColumn = $conn->real_escape_string($columnName);
+    $result = $conn->query("SHOW COLUMNS FROM `{$safeTable}` LIKE '{$safeColumn}'");
+    return $result && $result->num_rows > 0;
+}
+
 // Create tables if they don't exist
 function createTables($conn) {
     // -----------------------------------------------------
@@ -25,6 +32,8 @@ function createTables($conn) {
             username VARCHAR(50) NOT NULL UNIQUE,
             password VARCHAR(255) NOT NULL,
             user_type ENUM('buyer', 'seller', 'admin') NOT NULL DEFAULT 'buyer',
+            profile_photo VARCHAR(255) DEFAULT 'assets/img/default-avatar.png',
+            bio TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )";
         if (!$conn->query($sql)) {
@@ -89,6 +98,7 @@ function createTables($conn) {
             user_id INT NOT NULL,
             email VARCHAR(100) NOT NULL,
             comment TEXT NOT NULL,
+            rating INT DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
             FOREIGN KEY (car_id) REFERENCES cars(car_id) ON DELETE CASCADE,
@@ -114,6 +124,22 @@ function createTables($conn) {
         if (!$conn->query($sql)) {
             die("Error creating login_logs table: " . $conn->error);
         }
+    }
+
+    // -----------------------------------------------------
+    // 6) Backfill missing columns on existing deployments
+    // -----------------------------------------------------
+    if (tableExists($conn, 'users')) {
+        if (!columnExists($conn, 'users', 'profile_photo')) {
+            $conn->query("ALTER TABLE users ADD COLUMN profile_photo VARCHAR(255) DEFAULT 'assets/img/default-avatar.png'");
+        }
+        if (!columnExists($conn, 'users', 'bio')) {
+            $conn->query("ALTER TABLE users ADD COLUMN bio TEXT");
+        }
+    }
+
+    if (tableExists($conn, 'feedback') && !columnExists($conn, 'feedback', 'rating')) {
+        $conn->query("ALTER TABLE feedback ADD COLUMN rating INT DEFAULT 0");
     }
 }
 

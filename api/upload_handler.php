@@ -50,26 +50,53 @@ function handleImageUpload($file, $car_id) {
             throw new RuntimeException('Unknown upload error.');
     }
 
-    // Check file size (5MB max)
-    if ($file['size'] > 5000000) {
-        throw new RuntimeException('Exceeded filesize limit.');
+    // Check file size (20MB max)
+    if ($file['size'] > 20971520) {
+        throw new RuntimeException('File too large. Maximum size is 20MB.');
     }
 
-    // Check MIME type
+    // Check MIME type — all common image formats supported
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime_type = $finfo->file($file['tmp_name']);
     $allowed_types = [
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/gif' => 'gif'
+        'image/jpeg'          => 'jpg',
+        'image/jpg'           => 'jpg',
+        'image/png'           => 'png',
+        'image/gif'           => 'gif',
+        'image/webp'          => 'webp',
+        'image/avif'          => 'avif',
+        'image/bmp'           => 'bmp',
+        'image/tiff'          => 'tiff',
+        'image/tif'           => 'tiff',
+        'image/svg+xml'       => 'svg',
+        // HEIC / HEIF — iOS default camera format
+        'image/heic'          => 'heic',
+        'image/heif'          => 'heif',
+        'image/heic-sequence' => 'heic',
+        'image/heif-sequence' => 'heif',
     ];
 
-    if (!array_key_exists($mime_type, $allowed_types)) {
-        throw new RuntimeException('Invalid file format. Allowed formats: JPG, PNG, GIF');
+    // Fallback: check by file extension for HEIC/HEIF since some servers
+    // report them as application/octet-stream
+    if (array_key_exists($mime_type, $allowed_types)) {
+        $extension = $allowed_types[$mime_type];
+    } else {
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $ext_map = [
+            'jpg'  => 'jpg',  'jpeg' => 'jpg',  'png'  => 'png',
+            'gif'  => 'gif',  'webp' => 'webp', 'avif' => 'avif',
+            'bmp'  => 'bmp',  'tiff' => 'tiff', 'tif'  => 'tiff',
+            'svg'  => 'svg',  'heic' => 'heic', 'heif' => 'heif',
+        ];
+        if (!isset($ext_map[$ext])) {
+            throw new RuntimeException(
+                'Unsupported format. Allowed: JPG, PNG, GIF, WebP, HEIC, HEIF, AVIF, BMP, TIFF, SVG'
+            );
+        }
+        $extension = $ext_map[$ext];
     }
 
     // Generate unique filename
-    $extension = $allowed_types[$mime_type];
     $filename = sprintf(
         '%s.%s',
         sha1_file($file['tmp_name']),
