@@ -9,6 +9,11 @@ if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Please login to upload your profile photo.']);
     exit;
 }
+if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Invalid request token.']);
+    exit;
+}
 
 $user_id = $_SESSION['user_id'];
 
@@ -38,28 +43,20 @@ try {
         throw new RuntimeException('File too large. Maximum size is 10MB.');
     }
 
-    // Extended format support
+    // Restrict uploads to safe raster formats only
     $mime_type = mime_content_type($file['tmp_name']);
     $allowed_mimes = [
         'image/jpeg' => 'jpg',
         'image/png'  => 'png',
         'image/gif'  => 'gif',
         'image/webp' => 'webp',
-        'image/heic' => 'heic',
-        'image/heif' => 'heic',
         'image/avif' => 'avif'
     ];
-    
-    // Fallback logic for HEIC/HEIF passing as application/octet-stream
+
     if ($mime_type === false || !array_key_exists($mime_type, $allowed_mimes)) {
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $allowed_exts = ['jpg','jpeg','png','gif','webp','heic','heif','avif'];
-        if (!in_array($ext, $allowed_exts)) {
-            throw new RuntimeException('Invalid file format. Format: ' . $mime_type);
-        }
-    } else {
-        $ext = $allowed_mimes[$mime_type];
+        throw new RuntimeException('Invalid file format.');
     }
+    $ext = $allowed_mimes[$mime_type];
 
     // Generate unique name
     $new_filename = sprintf('%s.%s', sha1_file($file['tmp_name']), $ext);

@@ -2,10 +2,32 @@
 // Fetch recent listings for the featured section.
 $featured_cars = [];
 if (isset($conn)) {
-    $featured_result = $conn->query("SELECT car_id, company_name, car_model, car_year, price, fuel_type, image_url FROM cars ORDER BY car_id DESC LIMIT 4");
-    if ($featured_result) {
+    $hasCarYear = false;
+    $hasYear = false;
+    $hasImageUrl = false;
+    $hasImagePath = false;
+    $hasStatus = false;
+
+    $colCarYear = $conn->query("SHOW COLUMNS FROM cars LIKE 'car_year'");
+    if ($colCarYear && $colCarYear->num_rows > 0) $hasCarYear = true;
+    $colYear = $conn->query("SHOW COLUMNS FROM cars LIKE 'year'");
+    if ($colYear && $colYear->num_rows > 0) $hasYear = true;
+    $colImageUrl = $conn->query("SHOW COLUMNS FROM cars LIKE 'image_url'");
+    if ($colImageUrl && $colImageUrl->num_rows > 0) $hasImageUrl = true;
+    $colImagePath = $conn->query("SHOW COLUMNS FROM cars LIKE 'image_path'");
+    if ($colImagePath && $colImagePath->num_rows > 0) $hasImagePath = true;
+    $colStatus = $conn->query("SHOW COLUMNS FROM cars LIKE 'status'");
+    if ($colStatus && $colStatus->num_rows > 0) $hasStatus = true;
+
+    $yearExpr = $hasCarYear ? 'car_year' : ($hasYear ? 'year' : 'NULL');
+    $imageExpr = $hasImageUrl ? 'image_url' : ($hasImagePath ? 'image_path AS image_url' : 'NULL AS image_url');
+    $featured_sql = "SELECT car_id, company_name, car_model, {$yearExpr} AS car_year, price, fuel_type, {$imageExpr} FROM cars ORDER BY car_id DESC LIMIT 8";
+    $featured_result = $conn->query($featured_sql);
+    if ($featured_result instanceof mysqli_result) {
         while ($row = $featured_result->fetch_assoc()) {
-            $featured_cars[] = $row;
+            if (!empty($row['car_id'])) {
+                $featured_cars[] = $row;
+            }
         }
     }
 }
@@ -132,36 +154,10 @@ if (isset($conn)) {
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <!-- Fallback static cards if no DB listings -->
-        <div class="flex overflow-x-auto gap-8 md:gap-10 px-8 md:px-12 pb-12 snap-x snap-mandatory no-scrollbar">
-            <?php 
-            $static_cars = [
-                ['name'=>'Porsche 911 Carrera','detail'=>'2023 · Petrol · Silver','price'=>'$284,500','img'=>'https://lh3.googleusercontent.com/aida-public/AB6AXuBI1eRAFBqSNU4dAs1OLZ3TPIE8-NtbZg7cvmLpa2P5VrIsGXKXSDGQx2kPcxqUODTpuU6UijKYCRnU93MutrkPy1B7mAfKb12FaloUcd9ewBc3zPb_zNvjaWu7bZFuACsCtov2S7yXqNZ_k5M3jR43dDKV_Y6mCYRFua0Cah5bmNMS2FtWOo8MD-7GkyeQ1wd8Fem99phi1x-D-QXYEXTequWTOkLUsVp2HysGh_-sMUTADI4GsB8nFohLi-Ikw7DPHWzppBtAaZg'],
-                ['name'=>'Aston Martin Vantage','detail'=>'2022 · Petrol · British Green','price'=>'$215,000','img'=>'https://lh3.googleusercontent.com/aida-public/AB6AXuBIXFTpAvFzMqM4GJ0JsMcbS7dZWMtKOKjW4EJwzz7JBTqQlq0iEoFgTqn3ldBXsp7f0YbcQRP38ZBZrCFZsbeT4nxBtvEf5FWOQ-ed-DGeoxg9tRjqU03un4htDuAjye7RRMs_tIqjFfZTTfZkBGKWKZIW8DPDLgSxLElXwxg_kHvAKrVKBGcJq5tzRYYIfhEc8WDjNhW8vptB1Q6TctRXlPkpkiaGgKaTatIwtA0J0oFRBP8F0rvKw20z970MWgYuhi2kBbeXaYc'],
-                ['name'=>'Ferrari F8 Tributo','detail'=>'2021 · Petrol · Rosso Corsa','price'=>'$498,900','img'=>'https://lh3.googleusercontent.com/aida-public/AB6AXuCzN8zliILWRXBvNmhlgnRPADBHUXU3df48imhODG_23yADlONokuovhIH5edpp7d9_fpNuehUiH7yIvWgz4EySi0HYjW0NEcbRr_mIeGhBkkaVgk_upSdJPdKArHS8udBdAuX-PyMy08gvXLJSh_wCpG82kSVN6_pE-DRteSo3_FBBISHA49WtpdTdSUTm7VuSFPxLy-gTCAnxJCosbMn3wu3XJQFEVnaa7LrY_XzetR97QpzkUo-Tjie5GfCUrZ8YVFVDDSV1ofA'],
-                ['name'=>'BMW M4 Competition','detail'=>'2024 · Petrol · Frozen Black','price'=>'$179,900','img'=>'https://lh3.googleusercontent.com/aida-public/AB6AXuCidGANoLs5G8p-dIEHhAB6YUpaQ4BVSSOAWvtZrU-HgYquCvS3RTNDESwaxm_Cf-I2ULwSeZQZ3Vsd94iXzIlZPvq9CYwruuUoZpytWUjushD-YTxc8TJGH5aiVqW7NipvdP3eu9B1a9oXn8Y5CDpuOr-_uF4OdxKvfPaE6YMeDrl4JuDO3atx0C70hM73yaEHtehXkxjdYrJkXurEM_i2dks6uWIL-rb62rscUal-HWBOel9ovH9bN9IOEPMCEP0Pbz8YaCUWxvM'],
-            ];
-            foreach ($static_cars as $sc): ?>
-            <div class="flex-none w-[320px] md:w-[420px] snap-start group cursor-pointer">
-                <div class="relative aspect-[4/5] bg-[#efeded] overflow-hidden">
-                    <img alt="<?= $sc['name'] ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="<?= $sc['img'] ?>"/>
-                    <div class="absolute top-6 left-6 bg-white px-4 py-2 text-[10px] font-bold tracking-[0.2em] uppercase">AVAILABLE</div>
-                </div>
-                <div class="py-8 transition-all duration-300 border-b border-transparent group-hover:border-[#1c69d4]">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h4 class="text-xl font-bold tracking-tight uppercase"><?= $sc['name'] ?></h4>
-                            <p class="text-[#424753] font-light tracking-widest uppercase text-xs mt-1"><?= $sc['detail'] ?></p>
-                        </div>
-                        <span class="text-lg font-medium"><?= $sc['price'] ?></span>
-                    </div>
-                    <a class="inline-flex items-center space-x-2 text-[10px] font-bold tracking-[0.2em] uppercase text-[#0051ae] group-hover:text-[#1c69d4] transition-colors" href="search.php">
-                        <span>VIEW DETAILS</span>
-                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
-                </div>
+        <div class="px-8 md:px-12">
+            <div class="border border-dashed border-[#c2c6d5]/40 p-10 text-center bg-white/60">
+                <p class="text-xs tracking-[0.2em] uppercase text-[#424753]">No live car listings found yet.</p>
             </div>
-            <?php endforeach; ?>
         </div>
         <?php endif; ?>
     </section>

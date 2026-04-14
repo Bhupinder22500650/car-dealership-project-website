@@ -8,7 +8,6 @@ session_start();
 // 2. Include database connection
 // --------------------------------------------------------------------------
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/create_tables.php';
 
 // --------------------------------------------------------------------------
 // 3. Function to handle file upload
@@ -54,31 +53,12 @@ function handleImageUpload($file, $car_id = null) {
         'image/gif'           => 'gif',
         'image/webp'          => 'webp',
         'image/avif'          => 'avif',
-        'image/bmp'           => 'bmp',
-        'image/tiff'          => 'tiff',
-        'image/tif'           => 'tiff',
-        'image/svg+xml'       => 'svg',
-        'image/heic'          => 'heic',
-        'image/heif'          => 'heif',
-        'image/heic-sequence' => 'heic',
-        'image/heif-sequence' => 'heif',
     ];
 
-    if (array_key_exists($mime_type, $allowed_types)) {
-        $extension = $allowed_types[$mime_type];
-    } else {
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $ext_map = [
-            'jpg'  => 'jpg', 'jpeg' => 'jpg', 'png'  => 'png',
-            'gif'  => 'gif', 'webp' => 'webp', 'avif' => 'avif',
-            'bmp'  => 'bmp', 'tiff' => 'tiff', 'tif'  => 'tiff',
-            'svg'  => 'svg', 'heic' => 'heic', 'heif' => 'heif',
-        ];
-        if (!isset($ext_map[$ext])) {
-            throw new RuntimeException('Unsupported format. Allowed: JPG, PNG, GIF, WebP, HEIC, HEIF, AVIF, BMP, TIFF, SVG');
-        }
-        $extension = $ext_map[$ext];
+    if (!array_key_exists($mime_type, $allowed_types)) {
+        throw new RuntimeException('Unsupported format. Allowed: JPG, PNG, GIF, WebP, AVIF');
     }
+    $extension = $allowed_types[$mime_type];
 
     $filename = sprintf('%s.%s', sha1_file($file['tmp_name']), $extension);
     $upload_dir = dirname(__DIR__) . '/assets/img/cars/';
@@ -120,6 +100,12 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+$hasCarStatusColumn = false;
+$statusColumn = $conn->query("SHOW COLUMNS FROM cars LIKE 'status'");
+if ($statusColumn && $statusColumn->num_rows > 0) {
+    $hasCarStatusColumn = true;
+}
+
 // --------------------------------------------------------------------------
 // 5. Initialize feedback & sticky input variables
 // --------------------------------------------------------------------------
@@ -156,6 +142,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Error deleting car: ' . $stmt->error;
         }
         $stmt->close();
+    }
+    else if (isset($_POST['mark_sold'])) {
+        $car_id = (int) $_POST['car_id'];
+        if (!$hasCarStatusColumn) {
+            $error = 'Cannot mark sold yet because car status column is missing in database.';
+        } else {
+            $stmt = $conn->prepare("UPDATE cars SET status = 'sold' WHERE car_id = ? AND seller_id = ?");
+            if ($stmt) {
+                $stmt->bind_param('ii', $car_id, $seller_id);
+                if ($stmt->execute()) {
+                    $success = 'Listing marked as sold.';
+                } else {
+                    $error = 'Error updating status: ' . $stmt->error;
+                }
+                $stmt->close();
+            } else {
+                $error = 'Unable to prepare sold-status update.';
+            }
+        }
     }
     // Handle Edit Operation
     else if (isset($_POST['edit_car'])) {

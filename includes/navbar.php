@@ -44,7 +44,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <span class="material-symbols-outlined" style="font-size:22px; font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;">message</span>
             </a>
             <?php if ($_SESSION['user_type'] === 'admin'): ?>
-            <a href="admin_dashboard.php" class="text-black opacity-70 hover:opacity-100 hover:text-[#0051ae] transition-all" title="Admin">
+            <a href="search.php" class="text-black opacity-70 hover:opacity-100 hover:text-[#0051ae] transition-all" title="Admin">
                 <span class="material-symbols-outlined" style="font-size:22px; font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;">admin_panel_settings</span>
             </a>
             <?php endif; ?>

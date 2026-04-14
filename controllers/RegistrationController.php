@@ -11,11 +11,10 @@ session_start();
 
 // 3) Include shared DB connection
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/create_tables.php';
 
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['user_type'] === 'admin') {
-        header('Location: admin_dashboard.php');
+        header('Location: search.php');
     } else {
         header('Location: cars.php'); // Default fallback
     }
@@ -59,6 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     if (!preg_match('/^[\d+\-\s]+$/', $phone)) {
         $errors[] = 'Phone contains invalid characters.';
+    }
+    if (!in_array($userType, ['buyer', 'seller'], true)) {
+        $errors[] = 'Invalid account type selected.';
     }
 
     // — Check duplicates

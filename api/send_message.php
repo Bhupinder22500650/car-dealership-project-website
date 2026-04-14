@@ -34,14 +34,24 @@ if (strlen($message) < 5 || strlen($message) > 1000) {
 }
 
 try {
-    // Ensure target car exists
-    $car_stmt = $conn->prepare("SELECT car_id FROM cars WHERE car_id = ?");
+    // Ensure target car exists and receiver owns it
+    $car_stmt = $conn->prepare("SELECT seller_id FROM cars WHERE car_id = ?");
     $car_stmt->bind_param('i', $car_id);
     $car_stmt->execute();
     $car_result = $car_stmt->get_result();
     $car_stmt->close();
     if ($car_result->num_rows === 0) {
         echo json_encode(['success' => false, 'message' => 'Invalid car selected']);
+        exit;
+    }
+    $car_row = $car_result->fetch_assoc();
+    $expected_receiver_id = (int)$car_row['seller_id'];
+    if ($receiver_id !== $expected_receiver_id) {
+        echo json_encode(['success' => false, 'message' => 'Receiver does not match selected car owner']);
+        exit;
+    }
+    if ($sender_id === $receiver_id) {
+        echo json_encode(['success' => false, 'message' => 'Cannot send a message to yourself']);
         exit;
     }
 

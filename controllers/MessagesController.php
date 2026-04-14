@@ -5,7 +5,6 @@
 
 session_start();
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/create_tables.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -42,6 +41,42 @@ if (
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_sold'], $_POST['car_id'], $_POST['buyer_id'])) {
+    $car_id = (int) $_POST['car_id'];
+    $buyer_id = (int) $_POST['buyer_id'];
+
+    $hasStatusColumn = false;
+    $hasBoughtByColumn = false;
+    $statusCheck = $conn->query("SHOW COLUMNS FROM cars LIKE 'status'");
+    if ($statusCheck && $statusCheck->num_rows > 0) {
+        $hasStatusColumn = true;
+    }
+    $boughtByCheck = $conn->query("SHOW COLUMNS FROM cars LIKE 'bought_by'");
+    if ($boughtByCheck && $boughtByCheck->num_rows > 0) {
+        $hasBoughtByColumn = true;
+    }
+
+    if (
+        hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '') &&
+        $car_id > 0 &&
+        $buyer_id > 0 &&
+        $hasStatusColumn &&
+        $hasBoughtByColumn
+    ) {
+        $soldStmt = $conn->prepare(
+            "UPDATE cars
+             SET status = 'sold', bought_by = ?
+             WHERE car_id = ? AND seller_id = ?"
+        );
+        $soldStmt->bind_param('iii', $buyer_id, $car_id, $user_id);
+        $soldStmt->execute();
+        $soldStmt->close();
+    }
+
+    header('Location: messages.php?thread=' . $car_id . '_' . $buyer_id);
+    exit;
+}
+
 $hasProfilePhoto = false;
 $profilePhotoCol = $conn->query("SHOW COLUMNS FROM users LIKE 'profile_photo'");
 if ($profilePhotoCol && $profilePhotoCol->num_rows > 0) {
@@ -49,6 +84,25 @@ if ($profilePhotoCol && $profilePhotoCol->num_rows > 0) {
 }
 $senderPhotoSelect = $hasProfilePhoto ? 'sender.profile_photo AS sender_photo' : 'NULL AS sender_photo';
 $receiverPhotoSelect = $hasProfilePhoto ? 'receiver.profile_photo AS receiver_photo' : 'NULL AS receiver_photo';
+
+$hasStatusColumn = false;
+$hasBoughtByColumn = false;
+$statusCol = $conn->query("SHOW COLUMNS FROM cars LIKE 'status'");
+if ($statusCol && $statusCol->num_rows > 0) {
+    $hasStatusColumn = true;
+}
+$boughtByCol = $conn->query("SHOW COLUMNS FROM cars LIKE 'bought_by'");
+if ($boughtByCol && $boughtByCol->num_rows > 0) {
+    $hasBoughtByColumn = true;
+}
+$canMarkSold = $hasStatusColumn && $hasBoughtByColumn;
+
+$statusSelect = $hasStatusColumn ? "c.status AS car_status" : "'available' AS car_status";
+$boughtBySelect = $hasBoughtByColumn ? "c.bought_by" : "NULL AS bought_by";
+$buyerJoin = $hasBoughtByColumn ? "LEFT JOIN users buyer ON c.bought_by = buyer.user_id" : "";
+$buyerNameSelect = $hasBoughtByColumn
+    ? "buyer.First_name AS buyer_first, buyer.Last_name AS buyer_last"
+    : "NULL AS buyer_first, NULL AS buyer_last";
 
 $sql = "
     SELECT
@@ -61,6 +115,10 @@ $sql = "
         c.company_name,
         c.car_model,
         c.car_id,
+        c.seller_id,
+        {$statusSelect},
+        {$boughtBySelect},
+        {$buyerNameSelect},
         sender.First_name AS sender_first,
         sender.Last_name AS sender_last,
         {$senderPhotoSelect},
@@ -71,8 +129,9 @@ $sql = "
     JOIN cars c ON m.car_id = c.car_id
     JOIN users sender ON m.sender_id = sender.user_id
     JOIN users receiver ON m.receiver_id = receiver.user_id
+    {$buyerJoin}
     WHERE m.sender_id = ? OR m.receiver_id = ?
-    ORDER BY m.message_date DESC
+    ORDER BY m.message_date ASC, m.message_id ASC
 ";
 
 $stmt = $conn->prepare($sql);
@@ -99,6 +158,10 @@ foreach ($all_messages as $msg) {
             'other_name' => $other_name !== '' ? $other_name : 'Unknown',
             'other_photo' => $other_photo,
             'car_name' => trim(($msg['company_name'] ?? '') . ' ' . ($msg['car_model'] ?? '')),
+            'car_status' => $msg['car_status'] ?? 'available',
+            'seller_id' => (int) ($msg['seller_id'] ?? 0),
+            'bought_by' => isset($msg['bought_by']) ? (int) $msg['bought_by'] : null,
+            'sold_to_name' => trim(($msg['buyer_first'] ?? '') . ' ' . ($msg['buyer_last'] ?? '')),
             'unread' => 0,
             'messages' => [],
         ];
@@ -110,6 +173,14 @@ foreach ($all_messages as $msg) {
 
     $threads[$thread_key]['messages'][] = $msg;
 }
+
+uasort($threads, static function (array $a, array $b): int {
+    $aLast = end($a['messages']);
+    $bLast = end($b['messages']);
+    $aTime = strtotime($aLast['message_date'] ?? '1970-01-01');
+    $bTime = strtotime($bLast['message_date'] ?? '1970-01-01');
+    return $bTime <=> $aTime;
+});
 
 $active_thread_key = $_GET['thread'] ?? null;
 if (!$active_thread_key || !isset($threads[$active_thread_key])) {

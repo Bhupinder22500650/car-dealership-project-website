@@ -6,7 +6,6 @@
 session_start();
 
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/create_tables.php';
 
 $brand        = trim($_GET['brand'] ?? '');
 $model        = trim($_GET['model'] ?? '');

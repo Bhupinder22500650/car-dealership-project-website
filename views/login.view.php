@@ -58,7 +58,7 @@
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
                 <div class="space-y-2 relative">
-                    <label class="block text-[10px] font-medium tracking-[0.2em] text-[#424753] uppercase" for="username">Username / Email</label>
+                    <label class="block text-[10px] font-medium tracking-[0.2em] text-[#424753] uppercase" for="username">Username or Email</label>
                     <input class="luxury-input w-full py-4 text-sm font-light tracking-wide focus:ring-0"
                            id="username" name="username" placeholder="john.doe@coss.com" type="text"
                            value="<?= htmlspecialchars($username) ?>" required/>

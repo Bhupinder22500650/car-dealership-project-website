@@ -59,8 +59,11 @@ function createTables($conn) {
             body_type VARCHAR(50) NOT NULL,
             description TEXT,
             image_url VARCHAR(255) DEFAULT 'assets/img/default-car.jpg',
+            status ENUM('available', 'sold') NOT NULL DEFAULT 'available',
+            bought_by INT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (seller_id) REFERENCES users(user_id) ON DELETE CASCADE
+            FOREIGN KEY (seller_id) REFERENCES users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (bought_by) REFERENCES users(user_id) ON DELETE SET NULL
         )";
         if (!$conn->query($sql)) {
             die("Error creating cars table: " . $conn->error);
@@ -140,6 +143,16 @@ function createTables($conn) {
 
     if (tableExists($conn, 'feedback') && !columnExists($conn, 'feedback', 'rating')) {
         $conn->query("ALTER TABLE feedback ADD COLUMN rating INT DEFAULT 0");
+    }
+
+    if (tableExists($conn, 'cars')) {
+        if (!columnExists($conn, 'cars', 'status')) {
+            $conn->query("ALTER TABLE cars ADD COLUMN status ENUM('available', 'sold') NOT NULL DEFAULT 'available'");
+        }
+        if (!columnExists($conn, 'cars', 'bought_by')) {
+            $conn->query("ALTER TABLE cars ADD COLUMN bought_by INT NULL");
+            $conn->query("ALTER TABLE cars ADD CONSTRAINT fk_cars_bought_by FOREIGN KEY (bought_by) REFERENCES users(user_id) ON DELETE SET NULL");
+        }
     }
 }
 

@@ -8,14 +8,13 @@ session_start();
 // Include database connection
 // --------------------------------------------------------------------------
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/create_tables.php';
 
 // --------------------------------------------------------------------------
 // Redirect logged-in users
 // --------------------------------------------------------------------------
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['user_type'] === 'admin') {
-        header('Location: admin_dashboard.php');
+        header('Location: search.php');
     } else {
         header('Location: cars.php'); // Default fallback for now
     }
@@ -45,16 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Prepare statement to fetch user by username
         $stmt = $conn->prepare(
-            "SELECT user_id, password, user_type 
+            "SELECT user_id, username, password, user_type 
              FROM users 
-             WHERE username = ?"
+             WHERE username = ? OR email = ?"
         );
-        $stmt->bind_param("s", $username);
+        $stmt->bind_param("ss", $username, $username);
         $stmt->execute();
         $stmt->store_result();
 
         if ($stmt->num_rows === 1) {
-            $stmt->bind_result($userId, $hashedPassword, $userType);
+            $stmt->bind_result($userId, $dbUsername, $hashedPassword, $userType);
             $stmt->fetch();
 
             if (password_verify($password, $hashedPassword)) {
@@ -63,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Set session variables
                 $_SESSION['user_id'] = $userId;
-                $_SESSION['username'] = $username;
+                $_SESSION['username'] = $dbUsername;
                 $_SESSION['user_type'] = $userType;
 
                 // Track Login
@@ -77,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Redirect based on role
                 if ($userType === 'admin') {
-                    header('Location: admin_dashboard.php');
+                    header('Location: search.php');
                 } else if ($userType === 'seller') {
                     header('Location: cars.php');
                 } else {

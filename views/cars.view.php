@@ -200,7 +200,11 @@
                                 <h2 class="text-2xl md:text-3xl font-light tracking-tight uppercase">
                                     <?= htmlspecialchars(($car['company_name'] ?? '') . ' ' . ($car['car_model'] ?? '')) ?>
                                 </h2>
-                                <span class="px-3 py-1 border border-primary text-primary text-[9px] font-bold tracking-[0.15em] uppercase">LISTED</span>
+                                <?php if (($car['status'] ?? 'available') === 'sold'): ?>
+                                <span class="px-3 py-1 border border-[#c62828] text-[#c62828] text-[9px] font-bold tracking-[0.15em] uppercase">SOLD</span>
+                                <?php else: ?>
+                                <span class="px-3 py-1 border border-primary text-primary text-[9px] font-bold tracking-[0.15em] uppercase">AVAILABLE</span>
+                                <?php endif; ?>
                             </div>
                             <p class="text-xs font-light tracking-widest text-on-surface-variant uppercase">
                                 <?= htmlspecialchars($car_year_field) ?>
@@ -230,6 +234,15 @@
                                 onclick="uploadCarImage(<?= (int)$car['car_id'] ?>)" data-car-id="<?= (int)$car['car_id'] ?>" type="button">
                             <span class="material-symbols-outlined text-sm">photo_camera</span> Upload Image
                         </button>
+                        <?php if (($hasCarStatusColumn ?? false) && (($car['status'] ?? 'available') !== 'sold')): ?>
+                        <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" class="inline" onsubmit="return confirm('Mark this listing as sold?')">
+                            <input type="hidden" name="car_id" value="<?= (int)$car['car_id'] ?>">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                            <button type="submit" name="mark_sold" class="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#c62828] hover:text-[#a52121] transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">check_circle</span> Mark Sold
+                            </button>
+                        </form>
+                        <?php endif; ?>
                         <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post" class="inline" onsubmit="return confirm('Delete this listing?')">
                             <input type="hidden" name="car_id" value="<?= (int)$car['car_id'] ?>">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">

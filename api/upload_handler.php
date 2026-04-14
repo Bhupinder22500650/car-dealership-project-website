@@ -65,36 +65,12 @@ function handleImageUpload($file, $car_id) {
         'image/gif'           => 'gif',
         'image/webp'          => 'webp',
         'image/avif'          => 'avif',
-        'image/bmp'           => 'bmp',
-        'image/tiff'          => 'tiff',
-        'image/tif'           => 'tiff',
-        'image/svg+xml'       => 'svg',
-        // HEIC / HEIF — iOS default camera format
-        'image/heic'          => 'heic',
-        'image/heif'          => 'heif',
-        'image/heic-sequence' => 'heic',
-        'image/heif-sequence' => 'heif',
     ];
 
-    // Fallback: check by file extension for HEIC/HEIF since some servers
-    // report them as application/octet-stream
-    if (array_key_exists($mime_type, $allowed_types)) {
-        $extension = $allowed_types[$mime_type];
-    } else {
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $ext_map = [
-            'jpg'  => 'jpg',  'jpeg' => 'jpg',  'png'  => 'png',
-            'gif'  => 'gif',  'webp' => 'webp', 'avif' => 'avif',
-            'bmp'  => 'bmp',  'tiff' => 'tiff', 'tif'  => 'tiff',
-            'svg'  => 'svg',  'heic' => 'heic', 'heif' => 'heif',
-        ];
-        if (!isset($ext_map[$ext])) {
-            throw new RuntimeException(
-                'Unsupported format. Allowed: JPG, PNG, GIF, WebP, HEIC, HEIF, AVIF, BMP, TIFF, SVG'
-            );
-        }
-        $extension = $ext_map[$ext];
+    if (!array_key_exists($mime_type, $allowed_types)) {
+        throw new RuntimeException('Unsupported format. Allowed: JPG, PNG, GIF, WebP, AVIF');
     }
+    $extension = $allowed_types[$mime_type];
 
     // Generate unique filename
     $filename = sprintf(
