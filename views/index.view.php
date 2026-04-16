@@ -21,7 +21,10 @@ if (isset($conn)) {
 
     $yearExpr = $hasCarYear ? 'car_year' : ($hasYear ? 'year' : 'NULL');
     $imageExpr = $hasImageUrl ? 'image_url' : ($hasImagePath ? 'image_path AS image_url' : 'NULL AS image_url');
-    $featured_sql = "SELECT car_id, company_name, car_model, {$yearExpr} AS car_year, price, fuel_type, {$imageExpr} FROM cars ORDER BY car_id DESC LIMIT 8";
+    $statusExpr = $hasStatus ? 'status' : "'available' AS status";
+    $hiddenColCheck = $conn->query("SHOW COLUMNS FROM cars LIKE 'is_hidden'");
+    $hiddenCondition = ($hiddenColCheck && $hiddenColCheck->num_rows > 0) ? " AND (is_hidden = 0 OR is_hidden IS NULL)" : "";
+    $featured_sql = "SELECT car_id, company_name, car_model, {$yearExpr} AS car_year, price, fuel_type, {$imageExpr}, {$statusExpr} FROM cars WHERE 1=1{$hiddenCondition} ORDER BY car_id DESC";
     $featured_result = $conn->query($featured_sql);
     if ($featured_result instanceof mysqli_result) {
         while ($row = $featured_result->fetch_assoc()) {
@@ -61,7 +64,7 @@ if (isset($conn)) {
         </div>
         <div class="relative z-10 px-8 md:px-12 pb-20 md:pb-32 w-full max-w-7xl">
             <div class="flex flex-col space-y-2">
-                <h1 class="text-white text-7xl md:text-[10rem] font-black leading-[0.85] tracking-tighter">
+                <h1 class="text-white text-7xl md:text-[6rem] font-black leading-[0.85] tracking-tighter">
                     BUY.<br/>SELL.<br/>DRIVE.
                 </h1>
                 <p class="text-white/60 font-light tracking-[0.2em] uppercase text-sm mt-8 max-w-sm">
@@ -127,11 +130,15 @@ if (isset($conn)) {
                 $car_img = !empty($car['image_url']) && file_exists(dirname(__DIR__) . '/' . $car['image_url']) ? $car['image_url'] : 'https://lh3.googleusercontent.com/aida-public/AB6AXuBI1eRAFBqSNU4dAs1OLZ3TPIE8-NtbZg7cvmLpa2P5VrIsGXKXSDGQx2kPcxqUODTpuU6UijKYCRnU93MutrkPy1B7mAfKb12FaloUcd9ewBc3zPb_zNvjaWu7bZFuACsCtov2S7yXqNZ_k5M3jR43dDKV_Y6mCYRFua0Cah5bmNMS2FtWOo8MD-7GkyeQ1wd8Fem99phi1x-D-QXYEXTequWTOkLUsVp2HysGh_-sMUTADI4GsB8nFohLi-Ikw7DPHWzppBtAaZg';
             ?>
             <div class="flex-none w-[320px] md:w-[420px] snap-start group cursor-pointer">
-                <div class="relative aspect-[4/5] bg-[#efeded] overflow-hidden">
+                <div class="relative aspect-[3/2] bg-[#efeded] overflow-hidden">
                     <img alt="<?= htmlspecialchars(($car['company_name'] ?? '') . ' ' . ($car['car_model'] ?? '')) ?>"
                          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                          src="<?= htmlspecialchars($car_img) ?>"/>
+                    <?php if (!empty($car['status']) && $car['status'] === 'sold'): ?>
+                    <div class="absolute top-6 left-6 bg-[#424753] text-white px-4 py-2 text-[10px] font-bold tracking-[0.2em] uppercase">SOLD</div>
+                    <?php else: ?>
                     <div class="absolute top-6 left-6 bg-white px-4 py-2 text-[10px] font-bold tracking-[0.2em] uppercase">AVAILABLE</div>
+                    <?php endif; ?>
                 </div>
                 <div class="py-8 transition-all duration-300 border-b border-transparent group-hover:border-[#1c69d4]">
                     <div class="flex justify-between items-start mb-4">

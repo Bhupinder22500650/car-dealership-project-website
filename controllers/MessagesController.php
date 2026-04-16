@@ -45,30 +45,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_sold'], $_POST['
     $car_id = (int) $_POST['car_id'];
     $buyer_id = (int) $_POST['buyer_id'];
 
-    $hasStatusColumn = false;
-    $hasBoughtByColumn = false;
-    $statusCheck = $conn->query("SHOW COLUMNS FROM cars LIKE 'status'");
-    if ($statusCheck && $statusCheck->num_rows > 0) {
-        $hasStatusColumn = true;
-    }
-    $boughtByCheck = $conn->query("SHOW COLUMNS FROM cars LIKE 'bought_by'");
-    if ($boughtByCheck && $boughtByCheck->num_rows > 0) {
-        $hasBoughtByColumn = true;
-    }
+    require_once __DIR__ . '/../config/create_tables.php'; // ensure schema health!
+    $hasStatusColumn = true;
+    $hasBoughtByColumn = true;
+    $hasIsHiddenColumn = true;
 
     if (
         hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '') &&
         $car_id > 0 &&
-        $buyer_id > 0 &&
-        $hasStatusColumn &&
-        $hasBoughtByColumn
+        $buyer_id > 0
     ) {
+        $hide_listing = (isset($_POST['hide_listing']) && $_POST['hide_listing'] === '1') ? 1 : 0;
+        
         $soldStmt = $conn->prepare(
-            "UPDATE cars
-             SET status = 'sold', bought_by = ?
-             WHERE car_id = ? AND seller_id = ?"
+            "UPDATE cars SET status = 'sold', bought_by = ?, is_hidden = ? WHERE car_id = ? AND seller_id = ?"
         );
-        $soldStmt->bind_param('iii', $buyer_id, $car_id, $user_id);
+        $soldStmt->bind_param('iiii', $buyer_id, $hide_listing, $car_id, $user_id);
         $soldStmt->execute();
         $soldStmt->close();
     }

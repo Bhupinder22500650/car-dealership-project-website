@@ -153,6 +153,9 @@ function createTables($conn) {
             $conn->query("ALTER TABLE cars ADD COLUMN bought_by INT NULL");
             $conn->query("ALTER TABLE cars ADD CONSTRAINT fk_cars_bought_by FOREIGN KEY (bought_by) REFERENCES users(user_id) ON DELETE SET NULL");
         }
+        if (!columnExists($conn, 'cars', 'is_hidden')) {
+            $conn->query("ALTER TABLE cars ADD COLUMN is_hidden TINYINT(1) NOT NULL DEFAULT 0");
+        }
     }
 }
 

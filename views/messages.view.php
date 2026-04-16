@@ -82,19 +82,39 @@
             <?php if ($active_thread): ?>
             <!-- Thread Header -->
             <header class="p-5 md:p-8 border-b border-[#c2c6d5]/10 flex items-center justify-between bg-white/80 backdrop-blur-md z-10 gap-3">
-                <a href="profile.php?id=<?= $active_thread['other_id'] ?>" class="flex items-center gap-6 group z-20 hover:opacity-80 transition-opacity">
-                    <div class="w-10 h-10 bg-[#e3e2e2] flex items-center justify-center overflow-hidden">
+                <div class="flex items-center gap-6 z-20">
+                    <a href="profile.php?id=<?= $active_thread['other_id'] ?>" class="w-10 h-10 bg-[#e3e2e2] flex items-center justify-center overflow-hidden hover:opacity-80 transition-opacity">
                         <?php if ($active_thread['other_photo'] && $active_thread['other_photo'] !== 'assets/img/default-avatar.png'): ?>
                             <img src="<?= htmlspecialchars($active_thread['other_photo']) ?>" class="w-full h-full object-cover">
                         <?php else: ?>
                             <span class="material-symbols-outlined text-[#424753]">account_circle</span>
                         <?php endif; ?>
-                    </div>
+                    </a>
                     <div>
-                        <h2 class="text-sm font-semibold tracking-wide uppercase group-hover:text-[#0051ae] transition-colors"><?= htmlspecialchars($active_thread['other_name']) ?></h2>
-                        <div class="text-[9px] tracking-[0.2em] uppercase text-[#424753]/60 mt-1">View Profile</div>
+                        <a href="profile.php?id=<?= $active_thread['other_id'] ?>" class="hover:opacity-80 transition-opacity block group">
+                            <h2 class="text-sm font-semibold tracking-wide uppercase group-hover:text-[#0051ae] transition-colors"><?= htmlspecialchars($active_thread['other_name']) ?></h2>
+                        </a>
+                        <div class="flex items-center gap-2 mt-1">
+                            <a href="profile.php?id=<?= $active_thread['other_id'] ?>" class="text-[9px] tracking-[0.2em] uppercase text-[#424753]/60 hover:text-[#0051ae] transition-colors">View Profile</a>
+                            <?php if ($user_type === 'seller' && (int)$active_thread['seller_id'] === (int)$user_id): ?>
+                                <span class="text-[#c2c6d5] text-[9px]">&bull;</span>
+                                <?php if (($active_thread['car_status'] ?? 'available') === 'sold'): ?>
+                                    <span class="text-[9px] font-bold tracking-[0.2em] uppercase text-[#c62828]">CAR SOLD</span>
+                                <?php else: ?>
+                                    <span class="text-[9px] font-bold tracking-[0.2em] uppercase text-[#0051ae]">CAR STILL AVAILABLE</span>
+                                    <form action="messages.php?thread=<?= htmlspecialchars($active_thread_key) ?>" method="POST" onsubmit="return handleMarkSold(event);" class="inline-block ml-2">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <input type="hidden" name="car_id" value="<?= (int) $active_thread['car_id'] ?>">
+                                        <input type="hidden" name="buyer_id" value="<?= (int) $active_thread['other_id'] ?>">
+                                        <button type="submit" name="mark_sold" value="1" class="text-[8px] font-bold tracking-[0.2em] uppercase text-white bg-[#1c69d4] px-2 py-0.5 rounded-sm hover:bg-[#0051ae] transition-colors">
+                                            MARK AS SOLD
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </a>
+                </div>
                 <a href="car-details.php?id=<?= $active_thread['car_id'] ?>" class="bg-[#e3e2e2] hover:bg-[#c2c6d5] transition-colors px-4 py-1.5 flex items-center gap-3 cursor-pointer z-20">
                     <span class="text-[9px] font-medium tracking-[0.15em] uppercase text-on-surface">
                         <?= htmlspecialchars($active_thread['car_name']) ?>
@@ -102,23 +122,6 @@
                     <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward_ios</span>
                 </a>
             </header>
-            <?php if (
-                ($canMarkSold ?? false) &&
-                $user_type === 'seller' &&
-                (int) $active_thread['seller_id'] === (int) $user_id &&
-                ($active_thread['car_status'] ?? 'available') !== 'sold'
-            ): ?>
-            <div class="px-5 md:px-8 py-3 border-b border-[#c2c6d5]/10 bg-[#fff9f9]">
-                <form action="messages.php?thread=<?= htmlspecialchars($active_thread_key) ?>" method="POST" onsubmit="return confirm('Mark this car as sold to this buyer?');">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                    <input type="hidden" name="car_id" value="<?= (int) $active_thread['car_id'] ?>">
-                    <input type="hidden" name="buyer_id" value="<?= (int) $active_thread['other_id'] ?>">
-                    <button type="submit" name="mark_sold" value="1" class="text-[10px] px-4 py-2 bg-[#c62828] text-white font-semibold tracking-[0.15em] uppercase hover:bg-[#a52121] transition-colors">
-                        Mark as Sold to <?= htmlspecialchars($active_thread['other_name']) ?>
-                    </button>
-                </form>
-            </div>
-            <?php endif; ?>
 
             <!-- Message Area -->
             <div
@@ -181,6 +184,29 @@
 </main>
 
 <script>
+    function handleMarkSold(e) {
+        e.preventDefault();
+        const form = e.target;
+        if (confirm("Mark this car as sold to this buyer?")) {
+            const hideListing = confirm("Do you want to completely hide this listing from the public marketplace? (Click OK to hide, Cancel to keep it visible with a SOLD tag). It will still remain on your active profiles.");
+            
+            const markInput = document.createElement("input");
+            markInput.type = "hidden";
+            markInput.name = "mark_sold";
+            markInput.value = "1";
+            form.appendChild(markInput);
+
+            const hideInput = document.createElement("input");
+            hideInput.type = "hidden";
+            hideInput.name = "hide_listing";
+            hideInput.value = hideListing ? "1" : "0";
+            form.appendChild(hideInput);
+            
+            form.submit();
+        }
+        return false;
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const input = document.getElementById("messageField");
         if(input) input.focus();

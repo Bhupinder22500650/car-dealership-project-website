@@ -134,7 +134,7 @@
                             class="w-full bg-[#1b1c1c] text-white py-5 text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-[#0051ae] transition-colors duration-300">
                         SEND MESSAGE
                     </button>
-                    <?php if (isset($_SESSION['user_id'])): ?>
+                    <?php if (isset($_SESSION['user_id']) && $_SESSION['user_type'] === 'buyer'): ?>
                     <a href="feedback.php?car_id=<?= $car['car_id'] ?>"
                        class="block w-full border border-[#1b1c1c] text-[#1b1c1c] py-5 text-[10px] font-bold tracking-[0.2em] uppercase text-center hover:bg-[#1b1c1c] hover:text-white transition-colors duration-300">
                         LEAVE FEEDBACK

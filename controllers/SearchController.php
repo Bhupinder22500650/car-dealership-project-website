@@ -56,6 +56,11 @@ if ($mileage !== '') {
     $types .= 'i';
 }
 
+$hiddenColCheck = $conn->query("SHOW COLUMNS FROM cars LIKE 'is_hidden'");
+if ($hiddenColCheck && $hiddenColCheck->num_rows > 0) {
+    $conditions[] = '(is_hidden = 0 OR is_hidden IS NULL)';
+}
+
 switch ($sort) {
     case 'price_desc':
         $order = 'ORDER BY price DESC';
