@@ -15,16 +15,19 @@ COSS is a robust, dynamic platform where Buyers and Sellers can interact seamles
 - **Editorial Aesthetics:** Utilizes a highly structured, minimalist layout inspired by premium physical automotive showrooms.
 - **Interactive UI Components:** Smooth backdrop filters, glassmorphism `navbar.php` techniques, crisp hover states, and advanced CSS grid/flex structuring.
 - **Cinematic Car Details:** Rebuilt product listing interfaces (`car-details.php`) highlighting edge-to-edge photography, verified seller badges, and dynamic quick-spec matrices.
+- **Landscape Gallery:** Featured listings now utilize a cinematic 3:2 landscape aspect ratio to showcase vehicle aesthetics at their best.
 
 ### 🧑‍💼 User Profiles & Public Trust ⭐️
 - **Custom Uploadable Avatars:** Real-time uploadable profile pictures linking user identity across the entire marketplace.
 - **Aggregated 5-Star Reputation Engine:** Feedback and review ratings are captured numerically and automatically averaged, displaying verified seller trust scores and review timelines directly on their public profile.
+- **Role-Based Permissions:** Feedback and rating mechanisms are strictly enforced—only verified Buyers can leave reviews for Sellers, ensuring platform integrity.
 - **Dual-Mode Profile Dashboard:** An integrated `profile.php` gateway that intelligently switches between an active "Editor Mode" (for managing personal contact & bio details) and a "Public Showcase Portfolio" (when viewed by visiting buyers).
 
-### 💬 Threaded Live Messaging Center
-- Built a secure internal messaging engine (`messages.php`) bypassing outdated direct email workflows.
-- Cleanly organizes incoming/outgoing messages into grouped threads associated with specific users and specific vehicles.
-- Intelligently populates Dynamic Avatars, allowing buyers and sellers to click directly on faces in-chat to view each other's credentials.
+### 💬 Threaded Live Messaging & Transactions
+- **Secure Messaging Engine:** Internal messaging (`messages.php`) bypasses outdated email workflows. Cleanly organizes conversations into threads by user and vehicle.
+- **Direct Transaction Management:** Sellers can mark vehicles as **SOLD** directly within the chat thread. 
+- **Smart Listing Hiding:** Upon marking a car as sold, sellers are prompted with a smart option to immediately hide the listing from the public marketplace (Homepage/Search) while keeping it archived on their private profiles for record-keeping.
+- **Real-time Status Sync:** The marketplace automatically reflects "SOLD" or "AVAILABLE" status across all views instantly upon transaction.
 
 ### 📸 Next-Generation File Handling
 - **Apple HEIC & WebP Universal Support:** Advanced server logic using PHP `finfo` intelligently detects, hashes, and processes iPhone HEIC format files natively without forcing users to digitally pre-convert images on external tools.
@@ -32,14 +35,16 @@ COSS is a robust, dynamic platform where Buyers and Sellers can interact seamles
 
 ---
 
-## 📂 Revamped Cloud Architecture
+## 📂 Revamped Architecture
 
 ```text
-api/            → Secure processing endpoints (logout, profile_upload, send_message, upload_handler)
+api/            → Secure processing endpoints (logout, profile_upload, send_message, messages_poll)
 assets/         → Centralized vault for modular CSS, JS, and categorized image storage (cars/ & profiles/)
 config/         → Core DB connectivity and dynamic programmatic schema builders (create_tables.php)
+controllers/    → Business logic isolation (Index, Car, Search, Messages, Feedback)
 includes/       → Reusable modular components (navbar, footer, html headers)
-*.php           → Core Frontend Views (index, search, cars, car-details, messages, profile, feedback)
+views/          → Clean template files for separation of concerns
+*.php           → Entry points/Routes (index, search, cars, messages, etc.)
 ```
 
 ---
@@ -58,9 +63,10 @@ includes/       → Reusable modular components (navbar, footer, html headers)
 
 ## 🔐 Built-in Security
 
-- Cryptographic SHA-1 File System rewriting to avoid malicious code execution.
-- Global 32-Byte Session CSRF Token protection injected onto all POST forms.
-- Complete Prepared Statement mapping blocking SQL-Injection.
+- **Database Integrity:** Automatic schema migration ensures all necessary columns exist on every deployment.
+- **File Security:** Cryptographic SHA-1 File System rewriting to avoid malicious code execution.
+- **Form Protection:** Global 32-Byte Session CSRF Token protection injected onto all POST forms.
+- **SQL Sanitization:** Complete Prepared Statement mapping blocking SQL-Injection.
 
 ---
 
